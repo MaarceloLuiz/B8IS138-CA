@@ -1,0 +1,7 @@
+{
+  "name": "B8IS138-CA",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
