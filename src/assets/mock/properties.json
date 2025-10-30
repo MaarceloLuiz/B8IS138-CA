@@ -88,7 +88,7 @@
     "bedrooms": 2,
     "bathrooms": 1,
     "areaSqm": 75,
-    "propertyType": "townhouse",
+    "propertyType": "house",
     "images": [
       "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800",
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
@@ -113,7 +113,7 @@
     "bedrooms": 5,
     "bathrooms": 3,
     "areaSqm": 200,
-    "propertyType": "bungalow",
+    "propertyType": "house",
     "images": [
       "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800",
       "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800",
@@ -126,6 +126,31 @@
     "longitude": -6.3975,
     "createdBy": "agent1",
     "createdAt": "2024-10-25T16:20:00Z",
+    "isFeatured": false
+  },
+  {
+    "id": "6",
+    "title": "Compact Studio in Temple Bar",
+    "description": "Bright studio apartment in the heart of Dublin's cultural quarter. Perfect for young professionals or students. Fully furnished with modern kitchenette and excellent transport links.",
+    "price": 185000,
+    "location": "Dublin 2",
+    "address": "Apt 12, Temple Lane South, Dublin 2",
+    "eircode": "D02 HK58",
+    "bedrooms": 0,
+    "bathrooms": 1,
+    "areaSqm": 32,
+    "propertyType": "studio",
+    "images": [
+    "https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800",
+    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800"
+    ],
+    "agentName": "Emma Walsh",
+    "agentPhone": "+353 1 280 1234",
+    "agentEmail": "emma.walsh@realestate.ie",
+    "latitude": 53.3456,
+    "longitude": -6.2639,
+    "createdBy": "agent1",
+    "createdAt": "2024-10-28T13:00:00Z",
     "isFeatured": false
   }
 ]
