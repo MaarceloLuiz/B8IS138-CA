@@ -3,7 +3,7 @@
 */
 
 export interface User {
-    userId: string;
+    uid: string;
     email: string;
     displayName?: string;
     photoURL?: string;
@@ -11,6 +11,6 @@ export interface User {
     // CA2 - create new ads
     isAdmin?: boolean;
 
-    createdAt: string;
+    createdAt?: string;
     lastLogin?: string;
 }

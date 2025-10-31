@@ -46,3 +46,10 @@ ionic generate page features/bookings/booking-list
 
 ## Map feature (for CA Two)
 ionic generate page features/map/property-map
+
+## Env vars
+env vars are being loaded from the config.sh file
+to run the server use the following commands:
+
+source config.sh
+ionic serve
