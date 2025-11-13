@@ -1,13 +1,134 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>register</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Register</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">register</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <div class="register-container">
+    <div class="logo-section">
+      <ion-icon name="person-add" class="logo-icon"></ion-icon>
+      <h1>Create Account</h1>
+      <p>Join us to find your dream property</p>
+    </div>
+
+    <!-- Register Form -->
+    <form #registerForm="ngForm" (ngSubmit)="onRegister()">
+      <ion-item lines="full">
+        <ion-label position="floating">Full Name</ion-label>
+        <ion-input
+          type="text"
+          [(ngModel)]="displayName"
+          name="displayName"
+          required
+          placeholder="Enter your full name"
+        ></ion-input>
+      </ion-item>
+
+      <!-- Email Input -->
+      <ion-item lines="full">
+        <ion-label position="floating">Email</ion-label>
+        <ion-input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          required
+          email
+          placeholder="Enter your email"
+        ></ion-input>
+      </ion-item>
+
+      <!-- Password Input -->
+      <ion-item lines="full">
+        <ion-label position="floating">Password</ion-label>
+        <ion-input
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="password"
+          name="password"
+          required
+          minlength="6"
+          placeholder="Enter your password (min 6 characters)"
+        ></ion-input>
+        <ion-button
+          slot="end"
+          fill="clear"
+          (click)="togglePassword()"
+        >
+          <ion-icon
+            [name]="showPassword ? 'eye-off' : 'eye'"
+            slot="icon-only"
+          ></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <!-- Confirm Password Input -->
+      <ion-item lines="full">
+        <ion-label position="floating">Confirm Password</ion-label>
+        <ion-input
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          required
+          placeholder="Confirm your password"
+        ></ion-input>
+        <ion-button
+          slot="end"
+          fill="clear"
+          (click)="toggleConfirmPassword()"
+        >
+          <ion-icon
+            [name]="showConfirmPassword ? 'eye-off' : 'eye'"
+            slot="icon-only"
+          ></ion-icon>
+        </ion-button>
+      </ion-item>
+
+      <!-- Password Requirements -->
+      <div class="password-requirements">
+        <ion-text color="medium">
+          <p>Password must be at least 6 characters long</p>
+        </ion-text>
+      </div>
+
+      <!-- Error Message -->
+      <ion-text color="danger" *ngIf="errorMessage">
+        <p class="error-message">{{ errorMessage }}</p>
+      </ion-text>
+
+      <!-- Register Button -->
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="!registerForm.valid || isLoading"
+        class="register-button"
+      >
+        <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+        <span *ngIf="!isLoading">Create Account</span>
+      </ion-button>
+
+      <!-- Login Link -->
+      <div class="login-link">
+        <p>
+          Already have an account?
+          <ion-text color="primary">
+            <a [routerLink]="['/login']">Login here</a>
+          </ion-text>
+        </p>
+      </div>
+
+      <!-- Terms and Conditions -->
+      <div class="terms">
+        <ion-text color="medium">
+          <p>
+            By registering, you agree to our
+            <a href="#">Terms & Conditions</a> and
+            <a href="#">Privacy Policy</a>
+          </p>
+        </ion-text>
+      </div>
+    </form>
+  </div>
 </ion-content>
