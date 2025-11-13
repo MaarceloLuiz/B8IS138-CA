@@ -1,20 +1,107 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { Router, RouterLink } from '@angular/router';
+import {
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButton,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonText,
+  IonIcon,
+  IonSpinner,
+  IonCard,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardContent,
+  ToastController
+} from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { home, eye, eyeOff } from 'ionicons/icons';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonText,
+    IonIcon,
+    IonSpinner,
+    IonCard,
+    IonCardHeader,
+    IonCardSubtitle,
+    IonCardContent
+  ]
 })
-export class LoginPage implements OnInit {
+export class LoginPage {
+  email: string = '';
+  password: string = '';
+  showPassword: boolean = false;
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-  constructor() { }
-
-  ngOnInit() {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toastController: ToastController
+  ) {
+    addIcons({ home, eye, eyeOff });
+  } 
+  
+  // toggle password visibility
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
+  async onLogin(): Promise<void> {
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    try {
+      // mock authentication
+      // TODO: Replace with real Firebase auth when config.sh is set up
+      if (this.email === 'demo@realestate.ie' && this.password === 'demo123') {
+        await this.showToast('Login successful!', 'success');
+        await this.router.navigate(['/tabs']);
+      } else {
+        // Try real Firebase auth (will work once Firebase is configured)
+        await this.authService.login(this.email, this.password);
+        await this.showToast('Welcome back!', 'success');
+        await this.router.navigate(['/tabs']);
+      }
+    } catch (error: any) {
+      console.error('Login error:', error);
+      this.errorMessage = error.message || 'Invalid email or password';
+      await this.showToast(this.errorMessage, 'danger');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private async showToast(message: string, color: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      position: 'top',
+      color
+    });
+    await toast.present();
+  }
 }
