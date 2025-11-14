@@ -1,0 +1,237 @@
+/**
+ * Booking Form page styles
+ * Property viewing booking form
+ */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+  }
+}
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  height: 70vh;
+
+  .not-found-icon {
+    font-size: 100px;
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    color: var(--ion-color-dark);
+    margin: 10px 0;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+}
+
+.booking-form-container {
+  padding: 20px;
+  padding-bottom: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+// Property Summary Card
+.property-summary {
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .property-summary-content {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+
+    .property-thumbnail {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .property-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      h3 {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0 0 8px 0;
+        line-height: 1.3;
+      }
+
+      .location {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 14px;
+        color: var(--ion-color-medium);
+        margin: 0 0 8px 0;
+
+        ion-icon {
+          font-size: 16px;
+        }
+      }
+
+      .price {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+        margin: 0;
+      }
+    }
+  }
+}
+
+// Form Sections
+.form-section {
+  margin-bottom: 32px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 16px 0;
+    padding: 0 16px;
+  }
+
+  ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --inner-padding-end: 0;
+    margin-bottom: 16px;
+
+    ion-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    ion-input,
+    ion-select,
+    ion-textarea {
+      --padding-start: 12px;
+      --padding-end: 12px;
+      border: 1px solid var(--ion-color-light);
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+
+    ion-datetime-button {
+      width: 100%;
+      margin-top: 8px;
+      display: flex;
+      justify-content: flex-start;
+    }
+  }
+
+  // Checkbox item styling
+  ion-item[lines="none"] {
+    --padding-start: 0;
+    margin-bottom: 0;
+
+    ion-label {
+      font-size: 14px;
+      font-weight: normal;
+      margin-left: 12px;
+    }
+  }
+}
+
+// Submit Section
+.submit-section {
+  margin-top: 32px;
+
+  ion-button {
+    margin-bottom: 16px;
+    height: 50px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .form-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--ion-color-medium);
+    margin: 0;
+    line-height: 1.5;
+
+    ion-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+  }
+}
+
+// Responsive Design
+@media (min-width: 768px) {
+  .booking-form-container {
+    padding: 32px;
+  }
+
+  .property-summary {
+    .property-summary-content {
+      padding: 24px;
+
+      .property-thumbnail {
+        width: 120px;
+        height: 120px;
+      }
+
+      .property-info {
+        h3 {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+
+  .form-section {
+    h3 {
+      font-size: 20px;
+    }
+  }
+}
+
+// Add this at the end of your SCSS file
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin: 4px 0 12px 16px;
+  padding: 0;
+}
+
+ion-item.ion-invalid {
+  --border-color: var(--ion-color-danger);
+  --highlight-color-focused: var(--ion-color-danger);
+}

@@ -1,13 +1,186 @@
+<!-- Booking Form page template -->
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>booking-form</ion-title>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Book a Viewing</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">booking-form</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading property details...</p>
+  </div>
+
+  <!-- Booking Form -->
+  <div class="booking-form-container" *ngIf="!isLoading && property">
+    <!-- Property Summary Card -->
+    <ion-card class="property-summary">
+      <div class="property-summary-content">
+        <img [src]="property.images[0]" [alt]="property.title" class="property-thumbnail" />
+        <div class="property-info">
+          <h3>{{ property.title }}</h3>
+          <p class="location">
+            <ion-icon name="location"></ion-icon>
+            {{ property.location }}
+          </p>
+          <p class="price">€{{ property.price | number:'1.0-0' }}/month</p>
+        </div>
+      </div>
+    </ion-card>
+
+    <!-- Booking Form -->
+    <form class="booking-form" (ngSubmit)="submitBooking()">
+      <!-- Viewing Date -->
+      <div class="form-section">
+        <h3>Select Viewing Date & Time</h3>
+        
+        <ion-item>
+          <ion-label position="stacked">Preferred Date *</ion-label>
+          <ion-datetime-button datetime="viewing-date"></ion-datetime-button>
+        </ion-item>
+
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime
+              id="viewing-date"
+              presentation="date"
+              [min]="minDate"
+              [max]="maxDate"
+              [(ngModel)]="bookingData.viewingDate"
+              name="viewingDate"
+              (ionChange)="onDateChange()"
+            ></ion-datetime>
+          </ng-template>
+        </ion-modal>
+
+        <ion-item>
+          <ion-label position="stacked">Preferred Time *</ion-label>
+          <ion-select
+            [(ngModel)]="bookingData.viewingTime"
+            name="viewingTime"
+            placeholder="Select time slot"
+            interface="action-sheet"
+          >
+            <ion-select-option value="09:00">9:00 AM</ion-select-option>
+            <ion-select-option value="10:00">10:00 AM</ion-select-option>
+            <ion-select-option value="11:00">11:00 AM</ion-select-option>
+            <ion-select-option value="12:00">12:00 PM</ion-select-option>
+            <ion-select-option value="13:00">1:00 PM</ion-select-option>
+            <ion-select-option value="14:00">2:00 PM</ion-select-option>
+            <ion-select-option value="15:00">3:00 PM</ion-select-option>
+            <ion-select-option value="16:00">4:00 PM</ion-select-option>
+            <ion-select-option value="17:00">5:00 PM</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="form-section">
+        <h3>Your Contact Information</h3>
+
+        <ion-item>
+          <ion-label position="stacked">Full Name *</ion-label>
+          <ion-input
+            [(ngModel)]="bookingData.name"
+            name="name"
+            type="text"
+            placeholder="Enter your full name"
+            required
+          ></ion-input>
+        </ion-item>
+
+        <ion-item [class.ion-invalid]="emailError && bookingData.email">
+          <ion-label position="stacked">Email *</ion-label>
+          <ion-input
+            [(ngModel)]="bookingData.email"
+            name="email"
+            type="email"
+            placeholder="your.email@example.com"
+            (ionBlur)="validateEmail()"
+            required
+          ></ion-input>
+        </ion-item>
+        <p class="error-message" *ngIf="emailError && bookingData.email">
+          {{ emailError }}
+        </p>
+
+        <ion-item [class.ion-invalid]="phoneError && bookingData.phone">
+          <ion-label position="stacked">Phone Number *</ion-label>
+          <ion-input
+            [(ngModel)]="bookingData.phone"
+            name="phone"
+            type="tel"
+            placeholder="+353 XX XXX XXXX"
+            (ionInput)="onPhoneInput($event)"
+            (ionBlur)="validatePhone()"
+            required
+          ></ion-input>
+        </ion-item>
+        <p class="error-message" *ngIf="phoneError && bookingData.phone">
+          {{ phoneError }}
+        </p>
+      </div>
+
+      <!-- Additional Notes -->
+      <div class="form-section">
+        <h3>Additional Notes (Optional)</h3>
+
+        <ion-item>
+          <ion-label position="stacked">Message to Agent</ion-label>
+          <ion-textarea
+            [(ngModel)]="bookingData.notes"
+            name="notes"
+            rows="4"
+            placeholder="Any specific questions or requirements?"
+          ></ion-textarea>
+        </ion-item>
+      </div>
+
+      <!-- Terms and Conditions -->
+      <div class="form-section">
+        <ion-item lines="none">
+          <ion-checkbox
+            slot="start"
+            [(ngModel)]="agreedToTerms"
+            name="agreedToTerms"
+          ></ion-checkbox>
+          <ion-label class="ion-text-wrap">
+            I agree to be contacted by the property agent regarding this viewing request
+          </ion-label>
+        </ion-item>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="submit-section">
+        <ion-button
+          expand="block"
+          type="submit"
+          size="large"
+          [disabled]="!isFormValid()"
+        >
+          <ion-icon slot="start" name="calendar"></ion-icon>
+          Confirm Booking
+        </ion-button>
+
+        <p class="form-note">
+          <ion-icon name="information-circle"></ion-icon>
+          You will receive a confirmation email once the agent approves your viewing request.
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Property Not Found -->
+  <div class="not-found" *ngIf="!isLoading && !property">
+    <ion-icon name="alert-circle-outline" class="not-found-icon"></ion-icon>
+    <h2>Property Not Found</h2>
+    <p>Unable to load property details for booking.</p>
+    <ion-button [routerLink]="['/tabs/home']" fill="solid">
+      Back to Properties
+    </ion-button>
+  </div>
 </ion-content>
