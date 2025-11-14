@@ -1,13 +1,150 @@
+<!-- Property List page template -->
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>property-list</ion-title> <!-- MODIFY THIS TO CHANGE WHATS DISPLAYED IN THE HEADER -->
+  <ion-toolbar color="primary">
+    <ion-title>Properties</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleSearch()">
+        <ion-icon slot="icon-only" name="search"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search/Filter Bar (collapsible) -->
+  <ion-toolbar *ngIf="showSearch">
+    <ion-searchbar
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearch()"
+      placeholder="Search by location..."
+      animated
+      debounce="500"
+    ></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">property-list</ion-title>
+      <ion-title size="large">Properties</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Filter -->
+  <div class="filter-section">
+    <ion-chip
+      [outline]="selectedType !== 'all'"
+      [color]="selectedType === 'all' ? 'primary' : 'medium'"
+      (click)="filterByType('all')"
+    >
+      <ion-label>All</ion-label>
+    </ion-chip>
+    <ion-chip
+      [outline]="selectedType !== 'house'"
+      [color]="selectedType === 'house' ? 'primary' : 'medium'"
+      (click)="filterByType('house')"
+    >
+      <ion-label>Houses</ion-label>
+    </ion-chip>
+    <ion-chip
+      [outline]="selectedType !== 'apartment'"
+      [color]="selectedType === 'apartment' ? 'primary' : 'medium'"
+      (click)="filterByType('apartment')"
+    >
+      <ion-label>Apartments</ion-label>
+    </ion-chip>
+    <ion-chip
+      [outline]="selectedType !== 'studio'"
+      [color]="selectedType === 'studio' ? 'primary' : 'medium'"
+      (click)="filterByType('studio')"
+    >
+      <ion-label>Studios</ion-label>
+    </ion-chip>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading properties...</p>
+  </div>
+
+  <!-- Property List -->
+  <div class="property-list" *ngIf="!isLoading">
+    <div class="no-results" *ngIf="filteredProperties.length === 0">
+      <ion-icon name="home-outline" class="no-results-icon"></ion-icon>
+      <h2>No Properties Found</h2>
+      <p>Try adjusting your search or filters</p>
+    </div>
+
+    <!-- Property Cards -->
+    <ion-card
+      *ngFor="let property of filteredProperties"
+      class="property-card"
+      (click)="viewPropertyDetail(property.id)"
+      button
+    >
+      <!-- Property Image -->
+      <div class="property-image-container">
+        <img
+          [src]="property.images[0]"
+          [alt]="property.title"
+          class="property-image"
+        />
+        <!-- Featured Badge -->
+        <ion-badge
+          *ngIf="property.isFeatured"
+          color="warning"
+          class="featured-badge"
+        >
+          <ion-icon name="star"></ion-icon>
+          Featured
+        </ion-badge>
+      </div>
+
+      <!-- Property Details -->
+      <ion-card-header>
+        <ion-card-subtitle>
+          <ion-icon name="location" class="location-icon"></ion-icon>
+          {{ property.location }}
+        </ion-card-subtitle>
+        <ion-card-title>{{ property.title }}</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="property-info">
+          <div class="info-item">
+            <ion-icon name="bed"></ion-icon>
+            <span>{{ property.bedrooms }} Beds</span>
+          </div>
+          <div class="info-item">
+            <ion-icon name="water"></ion-icon>
+            <span>{{ property.bathrooms }} Baths</span>
+          </div>
+        </div>
+
+        <p class="description">
+          {{ property.description | slice:0:100 }}{{ property.description.length > 100 ? '...' : '' }}
+        </p>
+
+        <div class="property-footer">
+          <div class="price">
+            <ion-text color="primary">
+              <h2>€{{ property.price | number:'1.0-0' }}</h2>
+            </ion-text>
+            <!-- <span class="price-label">per month</span> -->
+          </div>
+          <ion-button
+            fill="solid"
+            size="small"
+            (click)="bookViewing(property.id, $event)"
+          >
+            <ion-icon slot="start" name="calendar"></ion-icon>
+            Book Viewing
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 </ion-content>
