@@ -136,7 +136,7 @@
     "location": "Dublin 2",
     "address": "Apt 12, Temple Lane South, Dublin 2",
     "eircode": "D02 HK58",
-    "bedrooms": 0,
+    "bedrooms": 1,
     "bathrooms": 1,
     "areaSqm": 32,
     "propertyType": "studio",
