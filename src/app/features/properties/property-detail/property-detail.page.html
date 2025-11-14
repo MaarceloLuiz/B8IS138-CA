@@ -1,13 +1,167 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>property-detail</ion-title>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Property Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="shareProperty()">
+        <ion-icon slot="icon-only" name="share-social"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">property-detail</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading property details...</p>
+  </div>
+
+  <!-- Property Not Found -->
+  <div class="not-found" *ngIf="!isLoading && !property">
+    <ion-icon name="alert-circle-outline" class="not-found-icon"></ion-icon>
+    <h2>Property Not Found</h2>
+    <p>The property you're looking for doesn't exist.</p>
+    <ion-button [routerLink]="['/tabs/home']" fill="solid">
+      Back to Properties
+    </ion-button>
+  </div>
+
+  <!-- Property Details -->
+  <div *ngIf="!isLoading && property" class="property-detail">
+    <div class="image-gallery">
+      <swiper-container
+        [slidesPerView]="1"
+        [pagination]="true"
+        [navigation]="true"
+      >
+        <swiper-slide *ngFor="let image of property.images">
+          <img [src]="image" [alt]="property.title" class="property-image" />
+        </swiper-slide>
+      </swiper-container>
+
+      <!-- Featured Badge -->
+      <ion-badge
+        *ngIf="property.isFeatured"
+        color="warning"
+        class="featured-badge"
+      >
+        <ion-icon name="star"></ion-icon>
+        Featured
+      </ion-badge>
+    </div>
+
+    <div class="property-info-section">
+      <div class="header-section">
+        <h1>{{ property.title }}</h1>
+        <div class="location">
+          <ion-icon name="location"></ion-icon>
+          <span>{{ property.address }}, {{ property.location }}</span>
+        </div>
+        <div class="eircode" *ngIf="property.eircode">
+          <ion-text color="medium">
+            <small>Eircode: {{ property.eircode }}</small>
+          </ion-text>
+        </div>
+      </div>
+
+      <div class="price-section">
+        <ion-text color="primary">
+          <h2>€{{ property.price | number:'1.0-0' }}</h2>
+        </ion-text>
+        <span class="price-label">per month</span>
+      </div>
+
+      <div class="stats-section">
+        <div class="stat-item">
+          <ion-icon name="bed" color="primary"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ property.bedrooms }}</span>
+            <span class="stat-label">Bedrooms</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="water" color="primary"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ property.bathrooms }}</span>
+            <span class="stat-label">Bathrooms</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="resize" color="primary"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ property.areaSqm }}</span>
+            <span class="stat-label">m²</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="type-section">
+        <ion-chip color="primary">
+          <ion-icon name="home"></ion-icon>
+          <ion-label>{{ property.propertyType | titlecase }}</ion-label>
+        </ion-chip>
+      </div>
+
+      <div class="description-section">
+        <h3>Description</h3>
+        <p>{{ property.description }}</p>
+      </div>
+
+      <div class="agent-section">
+        <h3>Contact Agent</h3>
+        <div class="agent-card">
+          <ion-icon name="person-circle" class="agent-icon"></ion-icon>
+          <div class="agent-info">
+            <p class="agent-name">{{ property.agentName }}</p>
+            <div class="agent-contact">
+              <a [href]="'tel:' + property.agentPhone" class="contact-link">
+                <ion-icon name="call"></ion-icon>
+                {{ property.agentPhone }}
+              </a>
+              <a [href]="'mailto:' + property.agentEmail" class="contact-link">
+                <ion-icon name="mail"></ion-icon>
+                {{ property.agentEmail }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Section (PLACEHOLDER FOR CA2) -->
+      <div class="map-section">
+        <h3>Location</h3>
+        <div class="map-placeholder">
+          <ion-icon name="map"></ion-icon>
+          <p>Map view coming soon</p>
+          <ion-text color="medium">
+            <small>{{ property.address }}, {{ property.location }}</small>
+            <small *ngIf="property.eircode"> - {{ property.eircode }}</small>
+          </ion-text>
+        </div>
+      </div>
+
+      <div class="timestamps" *ngIf="property.createdAt">
+        <ion-text color="medium">
+          <small>Listed on {{ property.createdAt | date:'mediumDate' }}</small>
+        </ion-text>
+        <ion-text color="medium" *ngIf="property.updatedAt">
+          <small> • Updated {{ property.updatedAt | date:'mediumDate' }}</small>
+        </ion-text>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar" *ngIf="!isLoading && property">
+    <ion-button
+      expand="block"
+      size="large"
+      (click)="bookViewing()"
+      class="book-button"
+    >
+      <ion-icon slot="start" name="calendar"></ion-icon>
+      Book a Viewing
+    </ion-button>
+  </div>
 </ion-content>
