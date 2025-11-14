@@ -36,13 +36,18 @@ export class BookingService {
         return this.repository.listByProperty(propertyId);
     }
 
-    async create(booking: Booking): Promise<string> {
+    async create(booking: Omit<Booking, 'id'>): Promise<string> {
         const viewingDateTime = new Date(`${booking.viewingDate}T${booking.viewingTime}`); // checking if the date is in the future
         if (viewingDateTime < new Date()) {
             throw new Error('Viewing date and time must be in the future');
         }
 
-        const id = await this.repository.create(booking);
+        const newBooking: Booking = { 
+            ...booking,
+            id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        };
+
+        const id = await this.repository.create(newBooking);
 
         if (booking.userId) {
             await this.getByUser(booking.userId); // refresh user bookings if id is available
