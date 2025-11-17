@@ -99,46 +99,105 @@ export class RegisterPage {
     return true;
   }
 
-  // handle register form submission
-  async onRegister(): Promise<void> {
-    this.errorMessage = '';
+  // FIREBASE register
+  async onRegister() {
+    if (!this.displayName || !this.email || !this.password || !this.confirmPassword) {
+      const toast = await this.toastController.create({
+        message: 'Please fill in all fields',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
+      return;
+    }
 
-    if (!this.validateForm()) {
-      await this.showToast(this.errorMessage, 'danger');
+    if (this.password !== this.confirmPassword) {
+      const toast = await this.toastController.create({
+        message: 'Passwords do not match',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
+      return;
+    }
+
+    if (this.password.length < 6) {
+      const toast = await this.toastController.create({
+        message: 'Password must be at least 6 characters',
+        duration: 2000,
+        color: 'warning'
+      });
+      await toast.present();
       return;
     }
 
     this.isLoading = true;
 
     try {
-      // For now, use mock registration
-      // TODO: Replace with real Firebase auth when config.sh is set up
-      
-      // Simulate registration delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock successful registration
-      await this.showToast('Account created successfully!', 'success');
-      await this.router.navigate(['/tabs/home']);
-      
-      // Uncomment below when Firebase is configured
-      /*
-      await this.authService.register(
-        this.email,
-        this.password,
-        this.displayName
-      );
-      await this.showToast('Welcome! Your account has been created.', 'success');
-      await this.router.navigate(['/tabs/home']);
-      */
+      await this.authService.register(this.email, this.password, this.displayName);
+
+      const toast = await this.toastController.create({
+        message: 'Registration successful! Welcome!',
+        duration: 2000,
+        color: 'success'
+      });
+      await toast.present();
+
+      this.router.navigate(['/tabs/home']);
     } catch (error: any) {
       console.error('Registration error:', error);
-      this.errorMessage = error.message || 'Failed to create account';
-      await this.showToast(this.errorMessage, 'danger');
+      
+      const toast = await this.toastController.create({
+        message: error.message || 'Registration failed. Please try again.',
+        duration: 3000,
+        color: 'danger'
+      });
+      await toast.present();
     } finally {
       this.isLoading = false;
     }
   }
+
+  // handle register form submission
+  // async onRegister(): Promise<void> {
+  //   this.errorMessage = '';
+
+  //   if (!this.validateForm()) {
+  //     await this.showToast(this.errorMessage, 'danger');
+  //     return;
+  //   }
+
+  //   this.isLoading = true;
+
+  //   try {
+  //     // For now, use mock registration
+  //     // TODO: Replace with real Firebase auth when config.sh is set up
+      
+  //     // Simulate registration delay
+  //     await new Promise(resolve => setTimeout(resolve, 1000));
+      
+  //     // Mock successful registration
+  //     await this.showToast('Account created successfully!', 'success');
+  //     await this.router.navigate(['/tabs/home']);
+      
+  //     // Uncomment below when Firebase is configured
+  //     /*
+  //     await this.authService.register(
+  //       this.email,
+  //       this.password,
+  //       this.displayName
+  //     );
+  //     await this.showToast('Welcome! Your account has been created.', 'success');
+  //     await this.router.navigate(['/tabs/home']);
+  //     */
+  //   } catch (error: any) {
+  //     console.error('Registration error:', error);
+  //     this.errorMessage = error.message || 'Failed to create account';
+  //     await this.showToast(this.errorMessage, 'danger');
+  //   } finally {
+  //     this.isLoading = false;
+  //   }
+  // }
 
   private async showToast(message: string, color: string): Promise<void> {
     const toast = await this.toastController.create({

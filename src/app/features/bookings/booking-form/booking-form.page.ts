@@ -37,6 +37,7 @@ import {
 import { PropertyService } from '../../../core/services/property.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { Property, Booking } from '../../../core/models';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-booking-form',
@@ -95,10 +96,10 @@ export class BookingFormPage implements OnInit {
     private router: Router,
     private propertyService: PropertyService,
     private bookingService: BookingService,
+    private authService: AuthService,
     private toastController: ToastController,
     private alertController: AlertController
   ) {
-    // Register icons
     addIcons({
       person,
       calendar,
@@ -107,7 +108,7 @@ export class BookingFormPage implements OnInit {
       informationCircle
     });
 
-    // Set date constraints (today to 3 months from now)
+    // set date constraints (today to 3 months from now)
     const today = new Date();
     this.minDate = today.toISOString();
     
@@ -117,7 +118,7 @@ export class BookingFormPage implements OnInit {
   }
 
   async ngOnInit() {
-    // Get property ID from query params
+    // get property ID from query params
     this.route.queryParams.subscribe(async params => {
       this.propertyId = params['propertyId'];
       if (this.propertyId) {
@@ -144,16 +145,10 @@ export class BookingFormPage implements OnInit {
     }
   }
 
-  /**
-   * Handle date change
-   */
   onDateChange(): void {
     console.log('Selected date:', this.bookingData.viewingDate);
   }
 
-  /**
-   * Validate email format
-   */
   validateEmail(): void {
     const email = this.bookingData.email.trim();
     if (!email) {
@@ -169,12 +164,10 @@ export class BookingFormPage implements OnInit {
     }
   }
 
-  /**
-   * Handle phone input - only allow numbers and common phone characters
-   */
+  // handle phone input - only allow numbers and common phone characters
   onPhoneInput(event: any): void {
     const input = event.target.value;
-    // Allow only numbers, spaces, +, -, (, )
+    // allow only numbers, spaces, +, -, (, )
     const cleaned = input.replace(/[^0-9+\-() ]/g, '');
     this.bookingData.phone = cleaned;
   }
@@ -243,14 +236,22 @@ export class BookingFormPage implements OnInit {
     await alert.present();
   }
 
+  // FIREBASE - use real ID
   private async createBooking(): Promise<void> {
     try {
       if (!this.property) return;
 
-      // booking object
+      const currentUserId = this.authService.currentUserId;
+      
+      if (!currentUserId) {
+        await this.showToast('Please login to book a viewing', 'warning');
+        this.router.navigate(['/login']);
+        return;
+      }
+
       const booking: Omit<Booking, 'id'> = {
         propertyId: this.property.id,
-        userId: 'current-user-id', // TODO: Replace with actual user ID from auth
+        userId: currentUserId, // Use real Firebase user ID
         viewingDate: this.bookingData.viewingDate,
         viewingTime: this.bookingData.viewingTime,
         status: 'pending',
@@ -271,6 +272,35 @@ export class BookingFormPage implements OnInit {
       await this.showToast('Failed to submit booking request', 'danger');
     }
   }
+
+  // private async createBooking(): Promise<void> {
+  //   try {
+  //     if (!this.property) return;
+
+  //     // booking object
+  //     const booking: Omit<Booking, 'id'> = {
+  //       propertyId: this.property.id,
+  //       userId: 'current-user-id', // TODO: Replace with actual user ID from auth
+  //       viewingDate: this.bookingData.viewingDate,
+  //       viewingTime: this.bookingData.viewingTime,
+  //       status: 'pending',
+  //       name: this.bookingData.name,
+  //       email: this.bookingData.email,
+  //       phone: this.bookingData.phone,
+  //       notes: this.bookingData.notes,
+  //       createdAt: new Date().toISOString()
+  //     };
+
+  //     const savedBooking = await this.bookingService.create(booking);
+
+  //     await this.showToast('Booking request submitted successfully!', 'success');
+
+  //     this.router.navigate(['/tabs/bookings']);
+  //   } catch (error) {
+  //     console.error('Error creating booking:', error);
+  //     await this.showToast('Failed to submit booking request', 'danger');
+  //   }
+  // }
 
   private formatDate(dateString: string): string {
     const date = new Date(dateString);

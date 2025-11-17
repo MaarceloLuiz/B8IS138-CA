@@ -35,6 +35,8 @@ import {
 import { BookingService } from '../../../core/services/booking.service';
 import { PropertyService } from '../../../core/services/property.service';
 import { Booking, Property } from '../../../core/models';
+import { AuthService } from '../../../core/services/auth.service';
+import { ViewWillEnter } from '@ionic/angular';
 
 @Component({
   selector: 'app-booking-list',
@@ -59,7 +61,7 @@ import { Booking, Property } from '../../../core/models';
     IonLabel
   ]
 })
-export class BookingListPage implements OnInit {
+export class BookingListPage implements OnInit, ViewWillEnter {
   bookings: Booking[] = [];
   filteredBookings: Booking[] = [];
   properties: Property[] = [];
@@ -69,6 +71,7 @@ export class BookingListPage implements OnInit {
   constructor(
     private bookingService: BookingService,
     private propertyService: PropertyService,
+    private authService: AuthService,
     private router: Router,
     private alertController: AlertController,
     private toastController: ToastController
@@ -92,13 +95,26 @@ export class BookingListPage implements OnInit {
     await this.loadData();
   }
 
-  // load bookings and properties
+  // ensure bookings are refreshed when navigating back to this page
+  async ionViewWillEnter() {
+    await this.loadData();
+  }
+
+  // FIREBASE - show only user's bookings
   async loadData(): Promise<void> {
     try {
       this.isLoading = true;
-      this.bookings = await this.bookingService.getAll();
+
+      const currentUserId = this.authService.currentUserId;
+
+      if (!currentUserId) {
+        this.bookings = [];
+        this.filterBookings();
+        return;
+      }
+
+      this.bookings = await this.bookingService.getByUser(currentUserId);
       this.properties = await this.propertyService.getAll();
-      // apply initial filter
       this.filterBookings();
     } catch (error) {
       console.error('Error loading bookings:', error);
@@ -107,6 +123,22 @@ export class BookingListPage implements OnInit {
       this.isLoading = false;
     }
   }
+
+  // load bookings and properties
+  // async loadData(): Promise<void> {
+  //   try {
+  //     this.isLoading = true;
+  //     this.bookings = await this.bookingService.getAll();
+  //     this.properties = await this.propertyService.getAll();
+  //     // apply initial filter
+  //     this.filterBookings();
+  //   } catch (error) {
+  //     console.error('Error loading bookings:', error);
+  //     await this.showToast('Failed to load bookings', 'danger');
+  //   } finally {
+  //     this.isLoading = false;
+  //   }
+  // }
 
   // filter bookings by status
   filterBookings(): void {
@@ -118,7 +150,7 @@ export class BookingListPage implements OnInit {
       );
     }
 
-    // Sort by date (newest first)
+    // sort by date (newest first)
     this.filteredBookings.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
