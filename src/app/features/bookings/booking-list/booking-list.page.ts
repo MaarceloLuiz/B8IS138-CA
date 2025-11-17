@@ -92,37 +92,47 @@ export class BookingListPage implements OnInit, ViewWillEnter {
   }
 
   async ngOnInit() {
-    await this.loadData();
-  }
-
-  // ensure bookings are refreshed when navigating back to this page
-  async ionViewWillEnter() {
-    await this.loadData();
-  }
-
-  // FIREBASE - show only user's bookings
-  async loadData(): Promise<void> {
-    try {
-      this.isLoading = true;
-
-      const currentUserId = this.authService.currentUserId;
-
-      if (!currentUserId) {
-        this.bookings = [];
-        this.filterBookings();
-        return;
-      }
-
-      this.bookings = await this.bookingService.getByUser(currentUserId);
-      this.properties = await this.propertyService.getAll();
-      this.filterBookings();
-    } catch (error) {
-      console.error('Error loading bookings:', error);
-      await this.showToast('Failed to load bookings', 'danger');
-    } finally {
+  this.authService.authState$.subscribe(async (user) => {
+    if (user) {
+      await this.loadData();
+    } else {
       this.isLoading = false;
+      this.bookings = [];
+      this.filterBookings();
     }
+  });
+}
+
+// ensure bookings are refreshed when navigating back to this page
+async ionViewWillEnter() {
+  if (this.authService.currentUserId) {
+    await this.loadData();
   }
+}
+
+// FIREBASE - show only user's bookings
+async loadData(): Promise<void> {
+  try {
+    this.isLoading = true;
+
+    const currentUserId = this.authService.currentUserId;
+
+    if (!currentUserId) {
+      this.bookings = [];
+      this.filterBookings();
+      return;
+    }
+
+    this.bookings = await this.bookingService.getByUser(currentUserId);
+    this.properties = await this.propertyService.getAll();
+    this.filterBookings();
+  } catch (error) {
+    console.error('Error loading bookings:', error);
+    await this.showToast('Failed to load bookings', 'danger');
+  } finally {
+    this.isLoading = false;
+  }
+}
 
   // load bookings and properties
   // async loadData(): Promise<void> {
