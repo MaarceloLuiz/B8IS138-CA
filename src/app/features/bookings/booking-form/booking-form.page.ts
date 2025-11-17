@@ -38,10 +38,6 @@ import { PropertyService } from '../../../core/services/property.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { Property, Booking } from '../../../core/models';
 
-/**
- * Booking Form page component
- * Allows users to book property viewings
- */
 @Component({
   selector: 'app-booking-form',
   templateUrl: './booking-form.page.html',
@@ -79,15 +75,12 @@ export class BookingFormPage implements OnInit {
   propertyId: string = '';
   agreedToTerms: boolean = false;
 
-  // Validation errors
   emailError: string = '';
   phoneError: string = '';
 
-  // Date constraints
   minDate: string = '';
   maxDate: string = '';
 
-  // Booking form data
   bookingData = {
     viewingDate: new Date().toISOString(),
     viewingTime: '',
@@ -135,9 +128,6 @@ export class BookingFormPage implements OnInit {
     });
   }
 
-  /**
-   * Load property details
-   */
   async loadProperty(): Promise<void> {
     try {
       this.isLoading = true;
@@ -189,9 +179,6 @@ export class BookingFormPage implements OnInit {
     this.bookingData.phone = cleaned;
   }
 
-  /**
-   * Validate phone format
-   */
   validatePhone(): void {
     const phone = this.bookingData.phone.trim();
     if (!phone) {
@@ -199,7 +186,7 @@ export class BookingFormPage implements OnInit {
       return;
     }
 
-    // Remove all non-digit characters for validation
+    // remove all non-digit characters for validation
     const digitsOnly = phone.replace(/\D/g, '');
     
     if (digitsOnly.length < 7) {
@@ -211,11 +198,7 @@ export class BookingFormPage implements OnInit {
     }
   }
 
-  /**
-   * Validate form
-   */
   isFormValid(): boolean {
-    // Don't call validation methods here - just check if errors exist
     const hasValidEmail = this.bookingData.email.trim() && !this.emailError;
     const hasValidPhone = this.bookingData.phone.trim() && !this.phoneError;
 
@@ -229,9 +212,6 @@ export class BookingFormPage implements OnInit {
     );
   }
 
-  /**
-   * Submit booking
-   */
   async submitBooking(): Promise<void> {
     if (!this.isFormValid()) {
       await this.showToast('Please fill in all required fields', 'warning');
@@ -243,7 +223,6 @@ export class BookingFormPage implements OnInit {
       return;
     }
 
-    // Show confirmation dialog
     const alert = await this.alertController.create({
       header: 'Confirm Booking',
       message: `Book a viewing for ${this.property.title} on ${this.formatDate(this.bookingData.viewingDate)} at ${this.formatTime(this.bookingData.viewingTime)}?`,
@@ -264,14 +243,11 @@ export class BookingFormPage implements OnInit {
     await alert.present();
   }
 
-  /**
-   * Create booking
-   */
   private async createBooking(): Promise<void> {
     try {
       if (!this.property) return;
 
-      // Create booking object
+      // booking object
       const booking: Omit<Booking, 'id'> = {
         propertyId: this.property.id,
         userId: 'current-user-id', // TODO: Replace with actual user ID from auth
@@ -285,13 +261,10 @@ export class BookingFormPage implements OnInit {
         createdAt: new Date().toISOString()
       };
 
-      // Save booking
       const savedBooking = await this.bookingService.create(booking);
 
-      // Show success message
       await this.showToast('Booking request submitted successfully!', 'success');
 
-      // Navigate to booking list or property detail
       this.router.navigate(['/tabs/bookings']);
     } catch (error) {
       console.error('Error creating booking:', error);
@@ -299,9 +272,6 @@ export class BookingFormPage implements OnInit {
     }
   }
 
-  /**
-   * Format date for display
-   */
   private formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IE', {
@@ -312,9 +282,6 @@ export class BookingFormPage implements OnInit {
     });
   }
 
-  /**
-   * Format time for display
-   */
   private formatTime(time: string): string {
     const [hours, minutes] = time.split(':');
     const hour = parseInt(hours);
@@ -323,9 +290,6 @@ export class BookingFormPage implements OnInit {
     return `${displayHour}:${minutes} ${ampm}`;
   }
 
-  /**
-   * Show toast notification
-   */
   private async showToast(message: string, color: string): Promise<void> {
     const toast = await this.toastController.create({
       message,

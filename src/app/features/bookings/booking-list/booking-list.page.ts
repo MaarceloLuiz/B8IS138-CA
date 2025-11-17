@@ -36,10 +36,6 @@ import { BookingService } from '../../../core/services/booking.service';
 import { PropertyService } from '../../../core/services/property.service';
 import { Booking, Property } from '../../../core/models';
 
-/**
- * Booking List page component
- * Displays all user bookings with filtering
- */
 @Component({
   selector: 'app-booking-list',
   templateUrl: './booking-list.page.html',
@@ -77,7 +73,6 @@ export class BookingListPage implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController
   ) {
-    // Register icons
     addIcons({
       calendarOutline,
       calendar,
@@ -97,20 +92,13 @@ export class BookingListPage implements OnInit {
     await this.loadData();
   }
 
-  /**
-   * Load bookings and properties
-   */
+  // load bookings and properties
   async loadData(): Promise<void> {
     try {
       this.isLoading = true;
-
-      // Load all bookings (in real app, filter by current user)
       this.bookings = await this.bookingService.getAll();
-
-      // Load all properties to display property info
       this.properties = await this.propertyService.getAll();
-
-      // Apply initial filter
+      // apply initial filter
       this.filterBookings();
     } catch (error) {
       console.error('Error loading bookings:', error);
@@ -120,9 +108,7 @@ export class BookingListPage implements OnInit {
     }
   }
 
-  /**
-   * Filter bookings by status
-   */
+  // filter bookings by status
   filterBookings(): void {
     if (this.selectedStatus === 'all') {
       this.filteredBookings = [...this.bookings];
@@ -138,30 +124,18 @@ export class BookingListPage implements OnInit {
     });
   }
 
-  /**
-   * Handle filter change
-   */
   onFilterChange(): void {
     this.filterBookings();
   }
 
-  /**
-   * Get property by ID
-   */
   getProperty(propertyId: string): Property | undefined {
     return this.properties.find(p => p.id === propertyId);
   }
 
-  /**
-   * Navigate to property detail
-   */
   viewProperty(propertyId: string): void {
     this.router.navigate(['/tabs/home/property-detail', propertyId]);
   }
 
-  /**
-   * Cancel booking
-   */
   async cancelBooking(booking: Booking): Promise<void> {
     const alert = await this.alertController.create({
       header: 'Cancel Booking',
@@ -184,14 +158,10 @@ export class BookingListPage implements OnInit {
     await alert.present();
   }
 
-  /**
-   * Perform booking cancellation
-   */
   private async performCancellation(booking: Booking): Promise<void> {
     try {
       await this.bookingService.cancel(booking.id);
       
-      // Update local state
       booking.status = 'cancelled';
       this.filterBookings();
 
@@ -202,9 +172,6 @@ export class BookingListPage implements OnInit {
     }
   }
 
-  /**
-   * Get status icon
-   */
   getStatusIcon(status: string): string {
     switch (status) {
       case 'pending':
@@ -218,9 +185,6 @@ export class BookingListPage implements OnInit {
     }
   }
 
-  /**
-   * Format date for display
-   */
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IE', {
@@ -231,9 +195,6 @@ export class BookingListPage implements OnInit {
     });
   }
 
-  /**
-   * Format timestamp for display
-   */
   formatTimestamp(timestamp: string): string {
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-IE', {
@@ -245,9 +206,6 @@ export class BookingListPage implements OnInit {
     });
   }
 
-  /**
-   * Show toast notification
-   */
   private async showToast(message: string, color: string): Promise<void> {
     const toast = await this.toastController.create({
       message,

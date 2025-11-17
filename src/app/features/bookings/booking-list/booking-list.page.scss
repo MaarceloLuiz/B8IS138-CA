@@ -1,8 +1,3 @@
-/**
- * Booking List page styles
- * Display user's property viewing bookings
- */
-
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -23,7 +18,6 @@
   padding-bottom: 20px;
 }
 
-// Filter Tabs
 .filter-tabs {
   padding: 16px;
   background: var(--ion-background-color);
@@ -41,7 +35,6 @@
   }
 }
 
-// Empty State
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -75,7 +68,6 @@
   }
 }
 
-// Bookings List
 .bookings-list {
   padding: 16px;
   display: flex;
@@ -83,7 +75,6 @@
   gap: 16px;
 }
 
-// Booking Card
 .booking-card {
   position: relative;
   margin: 0;
@@ -127,7 +118,6 @@
     }
   }
 
-  // Property Section
   .property-section {
     display: flex;
     gap: 12px;
@@ -190,7 +180,6 @@
     }
   }
 
-  // Viewing Details
   .viewing-details {
     display: flex;
     flex-direction: column;
@@ -231,7 +220,6 @@
     }
   }
 
-  // Contact Info
   .contact-info {
     margin-bottom: 16px;
     padding: 12px;
@@ -256,7 +244,6 @@
     }
   }
 
-  // Timestamps
   .timestamps {
     text-align: center;
     padding: 12px 0;
@@ -269,7 +256,6 @@
     }
   }
 
-  // Actions
   .booking-actions {
     display: flex;
     gap: 8px;
