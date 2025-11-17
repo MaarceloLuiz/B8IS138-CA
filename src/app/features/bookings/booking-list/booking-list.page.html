@@ -1,13 +1,147 @@
+<!-- Booking List page template -->
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>booking-list</ion-title> <!-- MODIFY THIS TO CHANGE WHATS DISPLAYED IN THE HEADER -->
+  <ion-toolbar color="primary">
+    <ion-title>My Bookings</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">booking-list</ion-title>
+      <ion-title size="large">My Bookings</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading your bookings...</p>
+  </div>
+
+  <!-- Bookings List -->
+  <div class="bookings-container" *ngIf="!isLoading">
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <ion-segment [(ngModel)]="selectedStatus" (ionChange)="onFilterChange()">
+        <ion-segment-button value="all">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="pending">
+          <ion-label>Pending</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="confirmed">
+          <ion-label>Confirmed</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="cancelled">
+          <ion-label>Cancelled</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredBookings.length === 0">
+      <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
+      <h2>No Bookings Found</h2>
+      <p *ngIf="selectedStatus === 'all'">You haven't made any booking requests yet.</p>
+      <p *ngIf="selectedStatus !== 'all'">No {{ selectedStatus }} bookings found.</p>
+      <ion-button [routerLink]="['/tabs/home']" fill="solid">
+        <ion-icon slot="start" name="search"></ion-icon>
+        Browse Properties
+      </ion-button>
+    </div>
+
+    <!-- Booking Cards -->
+    <div class="bookings-list" *ngIf="filteredBookings.length > 0">
+      <ion-card *ngFor="let booking of filteredBookings" class="booking-card">
+        <!-- Status Badge -->
+        <div class="status-badge" [ngClass]="'status-' + booking.status">
+          <ion-icon [name]="getStatusIcon(booking.status)"></ion-icon>
+          {{ booking.status | titlecase }}
+        </div>
+
+        <ion-card-content>
+          <!-- Property Info -->
+          <div class="property-section" *ngIf="getProperty(booking.propertyId) as property">
+            <img 
+              [src]="property.images[0]" 
+              [alt]="property.title" 
+              class="property-image"
+              (click)="viewProperty(property.id)"
+            />
+            <div class="property-info">
+              <h3 (click)="viewProperty(property.id)">{{ property.title }}</h3>
+              <p class="location">
+                <ion-icon name="location"></ion-icon>
+                {{ property.location }}
+              </p>
+              <p class="price">€{{ property.price | number:'1.0-0' }}/month</p>
+            </div>
+          </div>
+
+          <!-- Viewing Details -->
+          <div class="viewing-details">
+            <div class="detail-item">
+              <ion-icon name="calendar"></ion-icon>
+              <div class="detail-content">
+                <span class="label">Viewing Date</span>
+                <span class="value">{{ formatDate(booking.viewingDate) }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <ion-icon name="time"></ion-icon>
+              <div class="detail-content">
+                <span class="label">Time</span>
+                <span class="value">{{ booking.viewingTime }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item" *ngIf="booking.notes">
+              <ion-icon name="document-text"></ion-icon>
+              <div class="detail-content">
+                <span class="label">Notes</span>
+                <span class="value">{{ booking.notes }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="contact-info">
+            <h4>Contact Information</h4>
+            <p><strong>Name:</strong> {{ booking.name }}</p>
+            <p><strong>Email:</strong> {{ booking.email }}</p>
+            <p><strong>Phone:</strong> {{ booking.phone }}</p>
+          </div>
+
+          <!-- Timestamps -->
+          <div class="timestamps">
+            <small>Requested on {{ formatTimestamp(booking.createdAt) }}</small>
+          </div>
+
+          <!-- Actions -->
+          <div class="booking-actions">
+            <ion-button 
+              fill="outline" 
+              size="small"
+              (click)="viewProperty(booking.propertyId)"
+            >
+              <ion-icon slot="start" name="home"></ion-icon>
+              View Property
+            </ion-button>
+
+            <ion-button 
+              fill="solid" 
+              size="small" 
+              color="danger"
+              *ngIf="booking.status !== 'cancelled'"
+              (click)="cancelBooking(booking)"
+            >
+              <ion-icon slot="start" name="close-circle"></ion-icon>
+              Cancel
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
 </ion-content>

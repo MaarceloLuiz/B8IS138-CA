@@ -1,0 +1,319 @@
+/**
+ * Booking List page styles
+ * Display user's property viewing bookings
+ */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+
+  ion-spinner {
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+  }
+}
+
+.bookings-container {
+  padding-bottom: 20px;
+}
+
+// Filter Tabs
+.filter-tabs {
+  padding: 16px;
+  background: var(--ion-background-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  ion-segment {
+    --background: var(--ion-color-light);
+  }
+
+  ion-segment-button {
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+// Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  min-height: 60vh;
+
+  .empty-icon {
+    font-size: 100px;
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    color: var(--ion-color-dark);
+    margin: 10px 0;
+    font-size: 24px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 15px;
+    margin-bottom: 30px;
+    max-width: 300px;
+  }
+
+  ion-button {
+    margin-top: 10px;
+  }
+}
+
+// Bookings List
+.bookings-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Booking Card
+.booking-card {
+  position: relative;
+  margin: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  ion-card-content {
+    padding: 16px;
+  }
+
+  .status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    z-index: 5;
+
+    ion-icon {
+      font-size: 14px;
+    }
+
+    &.status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    &.status-confirmed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    &.status-cancelled {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  }
+
+  // Property Section
+  .property-section {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--ion-color-light);
+
+    .property-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .property-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      h3 {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0 0 8px 0;
+        line-height: 1.3;
+        cursor: pointer;
+        color: var(--ion-color-dark);
+
+        &:hover {
+          color: var(--ion-color-primary);
+        }
+      }
+
+      .location {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: var(--ion-color-medium);
+        margin: 0 0 8px 0;
+
+        ion-icon {
+          font-size: 14px;
+        }
+      }
+
+      .price {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ion-color-primary);
+        margin: 0;
+      }
+    }
+  }
+
+  // Viewing Details
+  .viewing-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--ion-color-light);
+
+    .detail-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+
+      ion-icon {
+        font-size: 20px;
+        color: var(--ion-color-primary);
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+
+      .detail-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .label {
+          font-size: 12px;
+          color: var(--ion-color-medium);
+          text-transform: uppercase;
+          font-weight: 600;
+        }
+
+        .value {
+          font-size: 14px;
+          color: var(--ion-color-dark);
+        }
+      }
+    }
+  }
+
+  // Contact Info
+  .contact-info {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--ion-color-light);
+    border-radius: 8px;
+
+    h4 {
+      font-size: 14px;
+      font-weight: bold;
+      margin: 0 0 8px 0;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      font-size: 13px;
+      margin: 4px 0;
+      color: var(--ion-color-medium);
+
+      strong {
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+
+  // Timestamps
+  .timestamps {
+    text-align: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--ion-color-light);
+    margin-bottom: 16px;
+
+    small {
+      font-size: 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+
+  // Actions
+  .booking-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+
+    ion-button {
+      flex: 1;
+      margin: 0;
+      font-size: 13px;
+      height: 40px;
+    }
+  }
+}
+
+// Responsive Design
+@media (min-width: 768px) {
+  .bookings-list {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .booking-card {
+    .property-section {
+      .property-image {
+        width: 120px;
+        height: 120px;
+      }
+
+      .property-info {
+        h3 {
+          font-size: 18px;
+        }
+      }
+    }
+
+    .viewing-details {
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      .detail-item {
+        flex: 1;
+        min-width: 200px;
+      }
+    }
+  }
+}
