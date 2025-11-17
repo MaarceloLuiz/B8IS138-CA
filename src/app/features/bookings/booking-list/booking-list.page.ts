@@ -133,7 +133,9 @@ export class BookingListPage implements OnInit {
   }
 
   viewProperty(propertyId: string): void {
-    this.router.navigate(['/tabs/home/property-detail', propertyId]);
+    this.router.navigate(['/property-detail'], {
+      queryParams: { id: propertyId }
+    });
   }
 
   async cancelBooking(booking: Booking): Promise<void> {

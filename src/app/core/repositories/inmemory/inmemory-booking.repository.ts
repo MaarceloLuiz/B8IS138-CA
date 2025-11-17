@@ -3,16 +3,43 @@ import { BookingRepository } from '../booking.repository';
 import { Booking } from '../../models';
 
 /**
- * In-memory (local) implementation of BookingRepository
- * stores bookings in memory for CA One
- * it's gonna be replaced by Firestore implementation in CA Two
+ * uses LOCALSTORAGE for persistence during development
+ * will be replaced with Firestore in CA Two
  */
-
 @Injectable({
   providedIn: 'root'
 })
-export class InMemoryBookingRepository extends BookingRepository {
+export class InMemoryBookingRepository implements BookingRepository {
+  private readonly STORAGE_KEY = 'app_bookings';
   private bookings: Booking[] = [];
+
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        this.bookings = JSON.parse(stored);
+        console.log('Loaded bookings from localStorage:', this.bookings.length);
+      } else {
+        this.bookings = [];
+      }
+    } catch (error) {
+      console.error('Error loading bookings from localStorage:', error);
+      this.bookings = [];
+    }
+  }
+
+  private saveToStorage(): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.bookings));
+      console.log('Saved bookings to localStorage:', this.bookings.length);
+    } catch (error) {
+      console.error('Error saving bookings to localStorage:', error);
+    }
+  }
 
   async list(): Promise<Booking[]> {
     return [...this.bookings];
@@ -31,10 +58,12 @@ export class InMemoryBookingRepository extends BookingRepository {
   }
 
   async create(booking: Booking): Promise<string> {
-    booking.id = Date.now().toString();
-    booking.createdAt = new Date().toISOString();
-    booking.status = 'pending';
+    // Add the new booking
     this.bookings.push(booking);
+    
+    // Save to localStorage
+    this.saveToStorage();
+    
     return booking.id;
   }
 
@@ -46,10 +75,17 @@ export class InMemoryBookingRepository extends BookingRepository {
         ...updates,
         updatedAt: new Date().toISOString()
       };
+      
+      this.saveToStorage();
     }
   }
 
   async delete(id: string): Promise<void> {
-    this.bookings = this.bookings.filter(b => b.id !== id);
+    const index = this.bookings.findIndex(b => b.id === id);
+    if (index !== -1) {
+      this.bookings.splice(index, 1);
+      
+      this.saveToStorage();
+    }
   }
 }
