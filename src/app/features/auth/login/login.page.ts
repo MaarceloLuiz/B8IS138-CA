@@ -44,10 +44,6 @@ import { AuthService } from '../../../core/services/auth.service';
     IonText,
     IonIcon,
     IonSpinner,
-    IonCard,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardContent
   ]
 })
 export class LoginPage {
