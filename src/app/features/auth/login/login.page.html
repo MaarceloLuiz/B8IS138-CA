@@ -15,7 +15,7 @@
     <form #loginForm="ngForm" (ngSubmit)="onLogin()">
       <!-- Email Input -->
       <ion-item lines="full">
-        <ion-label position="floating">Email</ion-label>
+        <ion-label position="stacked">Email</ion-label>
         <ion-input
           type="email"
           [(ngModel)]="email"
@@ -27,7 +27,7 @@
       </ion-item>
 
       <ion-item lines="full">
-        <ion-label position="floating">Password</ion-label>
+        <ion-label position="stacked">Password</ion-label>
         <ion-input
           [type]="showPassword ? 'text' : 'password'"
           [(ngModel)]="password"

@@ -18,7 +18,7 @@
     <!-- Register Form -->
     <form #registerForm="ngForm" (ngSubmit)="onRegister()">
       <ion-item lines="full">
-        <ion-label position="floating">Full Name</ion-label>
+        <ion-label position="stacked">Full Name</ion-label>
         <ion-input
           type="text"
           [(ngModel)]="displayName"
@@ -30,7 +30,7 @@
 
       <!-- Email Input -->
       <ion-item lines="full">
-        <ion-label position="floating">Email</ion-label>
+        <ion-label position="stacked">Email</ion-label>
         <ion-input
           type="email"
           [(ngModel)]="email"
@@ -43,7 +43,7 @@
 
       <!-- Password Input -->
       <ion-item lines="full">
-        <ion-label position="floating">Password</ion-label>
+        <ion-label position="stacked">Password</ion-label>
         <ion-input
           [type]="showPassword ? 'text' : 'password'"
           [(ngModel)]="password"
@@ -66,7 +66,7 @@
 
       <!-- Confirm Password Input -->
       <ion-item lines="full">
-        <ion-label position="floating">Confirm Password</ion-label>
+        <ion-label position="stacked">Confirm Password</ion-label>
         <ion-input
           [type]="showConfirmPassword ? 'text' : 'password'"
           [(ngModel)]="confirmPassword"
