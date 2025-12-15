@@ -42,4 +42,8 @@ export const routes: Routes = [
     path: 'property-map',
     loadComponent: () => import('./features/map/property-map/property-map.page').then( m => m.PropertyMapPage)
   },
+  {
+    path: 'profile',
+    loadComponent: () => import('./features/profile/profile/profile.page').then( m => m.ProfilePage)
+  },
 ];

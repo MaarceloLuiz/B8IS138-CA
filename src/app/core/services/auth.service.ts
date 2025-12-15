@@ -139,6 +139,19 @@ export class AuthService {
   async updateUserProfile(displayName?: string, photoURL?: string): Promise<void> {
     if (this.auth.currentUser) {
       await updateProfile(this.auth.currentUser, { displayName, photoURL });
+      
+      // Force refresh the current user state
+      const firebaseUser = this.auth.currentUser;
+      if (firebaseUser) {
+        const user: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email!,
+          displayName: firebaseUser.displayName || undefined,
+          photoURL: firebaseUser.photoURL || undefined,
+          isAdmin: this.currentUserSubject.value?.isAdmin || false,
+        };
+        this.currentUserSubject.next(user);
+      }
     }
   }
 }
