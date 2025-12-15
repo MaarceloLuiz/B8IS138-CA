@@ -38,11 +38,6 @@ import { AuthService } from '../../../core/services/auth.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { User } from '../../../core/models';
 
-/**
- * Profile page component
- * Displays user information, booking statistics, and account actions
- * Part of CA Two requirements
- */
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -110,18 +105,13 @@ export class ProfilePage implements OnInit, ViewWillEnter {
     await this.loadProfile();
   }
 
-  /**
-   * Load user profile and booking statistics
-   */
   private async loadProfile(): Promise<void> {
     try {
       this.isLoading = true;
 
-      // Get current user
       this.currentUser = this.authService.currentUser;
 
       if (this.currentUser) {
-        // Load booking statistics
         await this.loadBookingStats();
       }
     } catch (error) {
@@ -132,9 +122,6 @@ export class ProfilePage implements OnInit, ViewWillEnter {
     }
   }
 
-  /**
-   * Load booking statistics for current user
-   */
   private async loadBookingStats(): Promise<void> {
     try {
       const userId = this.authService.currentUserId;
@@ -153,9 +140,6 @@ export class ProfilePage implements OnInit, ViewWillEnter {
     }
   }
 
-  /**
-   * Format date string for display
-   */
   formatDate(dateString: string | undefined): string {
     if (!dateString) return 'N/A';
     
@@ -167,16 +151,10 @@ export class ProfilePage implements OnInit, ViewWillEnter {
     });
   }
 
-  /**
-   * Navigate to login page
-   */
   navigateToLogin(): void {
     this.router.navigate(['/login']);
   }
 
-  /**
-   * Edit profile information
-   */
   async editProfile(): Promise<void> {
     const alert = await this.alertController.create({
       header: 'Edit Profile',
@@ -207,9 +185,6 @@ export class ProfilePage implements OnInit, ViewWillEnter {
     await alert.present();
   }
 
-  /**
-   * Update user profile
-   */
   private async updateProfile(displayName: string): Promise<void> {
     try {
       await this.authService.updateUserProfile(displayName);
@@ -231,21 +206,16 @@ export class ProfilePage implements OnInit, ViewWillEnter {
 
   /**
    * Change password
+   * TODO: Implement password change in future enhancement
    */
   async changePassword(): Promise<void> {
     await this.showToast('Password change feature coming soon!', 'primary');
   }
 
-  /**
-   * Navigate to bookings page
-   */
   viewBookings(): void {
     this.router.navigate(['/tabs/bookings']);
   }
 
-  /**
-   * Logout user
-   */
   async logout(): Promise<void> {
     const alert = await this.alertController.create({
       header: 'Logout',
@@ -275,9 +245,6 @@ export class ProfilePage implements OnInit, ViewWillEnter {
     await alert.present();
   }
 
-  /**
-   * Show toast message
-   */
   private async showToast(message: string, color: string): Promise<void> {
     const toast = await this.toastController.create({
       message,
