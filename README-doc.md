@@ -58,3 +58,9 @@ ionic serve
 
 ## Profile page
 ionic generate page features/profile/profile --standalone
+
+## Google Maps API
+Access UI, enable and generate your API key
+
+## Install Google Maps Package
+npm install @angular/google-maps
