@@ -53,3 +53,8 @@ to run the server use the following commands:
 
 source config.sh
 ionic serve
+
+## CA2
+
+## Profile page
+ionic generate page features/profile/profile --standalone
