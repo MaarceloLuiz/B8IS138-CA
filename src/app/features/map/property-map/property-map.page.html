@@ -1,13 +1,78 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>property-map</ion-title>
+    <ion-title>Property Map</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">property-map</ion-title>
+      <ion-title size="large">Property Map</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading map...</p>
+  </div>
+
+  <!-- Map Container -->
+  <div *ngIf="!isLoading" class="map-container">
+    <google-map
+      [center]="mapCenter"
+      [zoom]="mapZoom"
+      [options]="mapOptions"
+      width="100%"
+      height="100%"
+    >
+      <!-- Property Markers -->
+      <map-marker
+        *ngFor="let property of properties"
+        [position]="getMarkerPosition(property)"
+        [options]="markerOptions"
+        (mapClick)="onMarkerClick(property)"
+      ></map-marker>
+    </google-map>
+  </div>
+
+  <!-- Property Info Card (shown when marker is clicked) -->
+  <div *ngIf="selectedProperty" class="property-info-card">
+    <ion-card>
+      <img [src]="selectedProperty.images[0]" [alt]="selectedProperty.title" />
+      <ion-card-header>
+        <ion-card-subtitle>{{ selectedProperty.location }}</ion-card-subtitle>
+        <ion-card-title>{{ selectedProperty.title }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="property-details">
+          <div class="detail-item">
+            <ion-icon name="bed"></ion-icon>
+            <span>{{ selectedProperty.bedrooms }} beds</span>
+          </div>
+          <div class="detail-item">
+            <ion-icon name="water"></ion-icon>
+            <span>{{ selectedProperty.bathrooms }} baths</span>
+          </div>
+          <div class="detail-item">
+            <ion-icon name="resize"></ion-icon>
+            <span>{{ selectedProperty.areaSqm }} m²</span>
+          </div>
+        </div>
+        <div class="price">€{{ selectedProperty.price.toLocaleString() }}</div>
+        <ion-button expand="block" (click)="viewPropertyDetails(selectedProperty.id)">
+          View Details
+          <ion-icon slot="end" name="arrow-forward"></ion-icon>
+        </ion-button>
+      </ion-card-content>
+      <ion-button
+        class="close-btn"
+        fill="clear"
+        size="small"
+        (click)="closePropertyCard()"
+      >
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-card>
+  </div>
 </ion-content>

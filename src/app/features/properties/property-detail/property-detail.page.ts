@@ -38,6 +38,8 @@ import {
 } from 'ionicons/icons';
 import { PropertyService } from '../../../core/services/property.service';
 import { Property } from '../../../core/models';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMapsLoaderService } from '../../../core/services/google-maps-loader.service';
 
 @Component({
   selector: 'app-property-detail',
@@ -61,7 +63,8 @@ import { Property } from '../../../core/models';
     IonText,
     IonSpinner,
     IonChip,
-    IonLabel
+    IonLabel,
+    GoogleMapsModule
   ]
 })
 export class PropertyDetailPage implements OnInit {
@@ -69,10 +72,31 @@ export class PropertyDetailPage implements OnInit {
   isLoading: boolean = true;
   propertyId: string = '';
 
+  // Google Maps properties
+  mapLoaded: boolean = false;
+  mapCenter: google.maps.LatLngLiteral = { lat: 53.3498, lng: -6.2603 };
+  mapZoom: number = 15;
+  mapOptions: google.maps.MapOptions = {
+    mapTypeId: 'roadmap',
+    zoomControl: true,
+    scrollwheel: false,
+    disableDoubleClickZoom: true,
+    maxZoom: 18,
+    minZoom: 10,
+    streetViewControl: false,
+    fullscreenControl: false,
+    mapTypeControl: false,
+  };
+
+  markerOptions: google.maps.MarkerOptions = {
+    draggable: false,
+  };
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private propertyService: PropertyService,
+    private googleMapsLoader: GoogleMapsLoaderService,
     private toastController: ToastController,
     private actionSheetController: ActionSheetController
   ) {
@@ -99,6 +123,11 @@ export class PropertyDetailPage implements OnInit {
       this.propertyId = params['id'];
       if (this.propertyId) {
         await this.loadProperty();
+        
+        // Load Google Maps if property has coordinates
+        if (this.property?.latitude && this.property?.longitude) {
+          await this.loadMap();
+        }
       } else {
         this.isLoading = false;
       }
@@ -119,6 +148,39 @@ export class PropertyDetailPage implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  /**
+   * Load Google Maps API and center on property location
+   */
+  private async loadMap(): Promise<void> {
+    try {
+      await this.googleMapsLoader.loadGoogleMaps();
+      this.mapLoaded = true;
+      
+      if (this.property?.latitude && this.property?.longitude) {
+        this.mapCenter = {
+          lat: this.property.latitude,
+          lng: this.property.longitude
+        };
+      }
+    } catch (error) {
+      console.error('Error loading map:', error);
+      await this.showToast('Failed to load map', 'warning');
+    }
+  }
+
+  /**
+   * Get property marker position for Google Maps
+   */
+  getPropertyPosition(): google.maps.LatLngLiteral | undefined {
+    if (this.property?.latitude && this.property?.longitude) {
+      return {
+        lat: this.property.latitude,
+        lng: this.property.longitude
+      };
+    }
+    return undefined;
   }
 
   bookViewing(): void {
@@ -180,7 +242,7 @@ export class PropertyDetailPage implements OnInit {
       `I found this property that might interest you:\n\n` +
       `${this.property.title}\n` +
       `Location: ${this.property.location}\n` +
-      `Price: €${this.property.price}/month\n` +
+      `Price: €${this.property.price}\n` +
       `Bedrooms: ${this.property.bedrooms}\n` +
       `Bathrooms: ${this.property.bathrooms}\n\n` +
       `View details: ${window.location.origin}/property-detail?id=${this.propertyId}`
