@@ -16,7 +16,7 @@ ion-content {
   }
 
   p {
-    color: var(--ion-color-medium);
+    color: var(white);
     font-size: 1rem;
   }
 }
@@ -32,7 +32,7 @@ ion-content {
 
   .empty-icon {
     font-size: 120px;
-    color: var(--ion-color-medium);
+    color: var(white);
     margin-bottom: 1rem;
   }
 
@@ -40,11 +40,11 @@ ion-content {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--ion-color-medium);
+    color: var(white);
   }
 
   p {
-    color: var(--ion-color-medium);
+    color: var(white);
     margin-bottom: 2rem;
   }
 
@@ -126,7 +126,7 @@ ion-content {
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    color: var(--ion-color-medium);
+    color: var(white);
   }
 }
 
@@ -156,12 +156,12 @@ ion-content {
         font-size: 1.5rem;
         font-weight: 700;
         margin: 0;
-        color: var(--ion-color-medium);
+        color: var(white);
       }
 
       .stat-label {
         font-size: 0.75rem;
-        color: var(--ion-color-medium);
+        color: var(white);
         margin: 0;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -177,7 +177,7 @@ ion-list {
     --background: rgba(255, 255, 255, 0.05);
     --border-color: rgba(255, 255, 255, 0.1);
     --border-radius: 12px;
-    --color: var(--ion-color-medium);
+    --color: var(white);
     margin-bottom: 0.5rem;
     --padding-start: 1rem;
     --inner-padding-end: 1rem;
@@ -191,12 +191,12 @@ ion-list {
     ion-label {
       h3 {
         font-weight: 600;
-        color: var(--ion-color-medium);
+        color: var(white);
         margin-bottom: 0.25rem;
       }
 
       p {
-        color: var(--ion-color-medium);
+        color: var(white);
         font-size: 0.9rem;
       }
     }
