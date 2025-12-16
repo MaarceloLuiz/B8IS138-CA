@@ -71,7 +71,6 @@ Access UI, enable and generate your database
 ## Install Firestore Package
 npm install @angular/fire
 
-
 ## Create new propety feature
 
 ## Generate the Property Create Page
