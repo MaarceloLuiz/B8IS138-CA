@@ -58,7 +58,7 @@ export class PropertyMapPage implements OnInit {
   mapLoaded: boolean = false;
 
   // Map configuration
-  mapCenter: google.maps.LatLngLiteral = { lat: 53.3498, lng: -6.2603 }; // Dublin center
+  mapCenter: google.maps.LatLngLiteral = { lat: 53.3498, lng: -6.2603 }; // Default to Dublin
   mapZoom: number = 12;
   mapOptions: google.maps.MapOptions = {
     mapTypeId: 'roadmap',
@@ -96,9 +96,6 @@ export class PropertyMapPage implements OnInit {
     await this.initializeMap();
   }
 
-  /**
-   * Initialize Google Maps and load properties
-   */
   private async initializeMap(): Promise<void> {
     try {
       this.isLoading = true;
@@ -116,20 +113,13 @@ export class PropertyMapPage implements OnInit {
     }
   }
 
-  /**
-   * Load all properties with coordinates
-   */
+  // Load all properties with coordinates
   private async loadProperties(): Promise<void> {
     try {
-      // Get all properties
       const allProperties = await this.propertyService.getAll();
-
-      // Filter properties that have coordinates
       this.properties = allProperties.filter(p => p.latitude !== undefined && p.longitude !== undefined);
-
       console.log('Loaded properties with coordinates:', this.properties.length);
 
-      // Center map on first property if available
       if (this.properties.length > 0 && this.properties[0].latitude && this.properties[0].longitude) {
         this.mapCenter = {
           lat: this.properties[0].latitude,
@@ -141,9 +131,7 @@ export class PropertyMapPage implements OnInit {
     }
   }
 
-  /**
-   * Get marker position for a property
-   */
+  // Get marker position for a property
   getMarkerPosition(property: Property): google.maps.LatLngLiteral {
     return {
       lat: property.latitude!,
@@ -151,9 +139,7 @@ export class PropertyMapPage implements OnInit {
     };
   }
 
-  /**
-   * Handle marker click event
-   */
+  // Handle marker click event
   onMarkerClick(property: Property): void {
     this.selectedProperty = property;
     
@@ -167,17 +153,12 @@ export class PropertyMapPage implements OnInit {
     }
   }
 
-  /**
-   * Close property info card
-   */
+  // Close property info card
   closePropertyCard(): void {
     this.selectedProperty = null;
     this.mapZoom = 12;
   }
 
-  /**
-   * Navigate to property details page
-   */
   viewPropertyDetails(propertyId: string): void {
     this.router.navigate(['/property', propertyId]);
   }

@@ -98,9 +98,7 @@ export class ProfilePage implements OnInit, ViewWillEnter {
     await this.loadProfile();
   }
 
-  /**
-   * Reload profile data when page becomes visible
-   */
+  // Reload profile data when page becomes visible
   async ionViewWillEnter() {
     await this.loadProfile();
   }

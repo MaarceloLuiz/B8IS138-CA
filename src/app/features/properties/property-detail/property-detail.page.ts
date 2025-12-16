@@ -72,7 +72,6 @@ export class PropertyDetailPage implements OnInit {
   isLoading: boolean = true;
   propertyId: string = '';
 
-  // Google Maps properties
   mapLoaded: boolean = false;
   mapCenter: google.maps.LatLngLiteral = { lat: 53.3498, lng: -6.2603 };
   mapZoom: number = 15;
@@ -150,9 +149,7 @@ export class PropertyDetailPage implements OnInit {
     }
   }
 
-  /**
-   * Load Google Maps API and center on property location
-   */
+  // Load Google Maps API and center on property location
   private async loadMap(): Promise<void> {
     try {
       await this.googleMapsLoader.loadGoogleMaps();
@@ -170,9 +167,7 @@ export class PropertyDetailPage implements OnInit {
     }
   }
 
-  /**
-   * Get property marker position for Google Maps
-   */
+  // Get property marker position for Google Maps
   getPropertyPosition(): google.maps.LatLngLiteral | undefined {
     if (this.property?.latitude && this.property?.longitude) {
       return {

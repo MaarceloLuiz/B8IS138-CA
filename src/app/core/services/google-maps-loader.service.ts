@@ -14,9 +14,6 @@ export class GoogleMapsLoaderService {
 
   constructor() {}
 
-  /**
-   * Load Google Maps API script dynamically
-   */
   loadGoogleMaps(): Promise<void> {
     // If already loaded, return immediately
     if (this.scriptLoaded) {
@@ -37,7 +34,7 @@ export class GoogleMapsLoaderService {
         return;
       }
 
-      // Create script element
+      // Create script element with API key
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}`;
       script.async = true;
@@ -62,9 +59,6 @@ export class GoogleMapsLoaderService {
     return this.scriptLoadingPromise;
   }
 
-  /**
-   * Check if Google Maps API is loaded
-   */
   isLoaded(): boolean {
     return this.scriptLoaded;
   }
