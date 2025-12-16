@@ -64,3 +64,15 @@ Access UI, enable and generate your API key
 
 ## Install Google Maps Package
 npm install @angular/google-maps
+
+## Enable Firestore in Firebase Console
+Access UI, enable and generate your database
+
+## Install Firestore Package
+npm install @angular/fire
+
+
+## Create new propety feature
+
+## Generate the Property Create Page
+ionic generate page features/properties/property-create

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import {
   IonContent,
   IonHeader,
@@ -23,7 +23,8 @@ import {
   IonButtons,
   IonRefresher,
   IonRefresherContent,
-  ToastController
+  ToastController,
+  ViewWillEnter
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -34,10 +35,13 @@ import {
   calendar,
   star,
   search,
-  homeOutline
+  homeOutline,
+  addCircle
 } from 'ionicons/icons';
 import { PropertyService } from '../../../core/services/property.service';
 import { Property } from '../../../core/models';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-property-list',
@@ -47,6 +51,7 @@ import { Property } from '../../../core/models';
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     IonContent,
     IonHeader,
     IonTitle,
@@ -69,7 +74,7 @@ import { Property } from '../../../core/models';
     IonRefresherContent
   ]
 })
-export class PropertyListPage implements OnInit {
+export class PropertyListPage implements OnInit, OnDestroy, ViewWillEnter {
   properties: Property[] = [];
   filteredProperties: Property[] = [];
 
@@ -78,6 +83,8 @@ export class PropertyListPage implements OnInit {
 
   searchTerm: string = '';
   selectedType: string = 'all';
+
+  private navigationSubscription?: Subscription;
 
   constructor(
     private propertyService: PropertyService,
@@ -92,11 +99,37 @@ export class PropertyListPage implements OnInit {
       calendar,
       star,
       search,
-      homeOutline
+      homeOutline,
+      addCircle
     });
   }
 
   async ngOnInit() {
+    await this.loadProperties();
+    
+    // Subscribe to navigation events to reload when returning to this page
+    this.navigationSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(async (event: any) => {
+        if (event.url.includes('/tabs/home')) {
+          console.log('Navigation detected - reloading properties');
+          await this.loadProperties();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    // Clean up subscription
+    if (this.navigationSubscription) {
+      this.navigationSubscription.unsubscribe();
+    }
+  }
+
+  /**
+   * Ionic lifecycle hook - called every time the page is about to enter
+   */
+  async ionViewWillEnter() {
+    console.log('ionViewWillEnter - reloading properties');
     await this.loadProperties();
   }
 
@@ -105,6 +138,13 @@ export class PropertyListPage implements OnInit {
       this.isLoading = true;
       this.properties = await this.propertyService.getAll();
       this.filteredProperties = [...this.properties];
+      
+      // Reapply filters if any are active
+      if (this.searchTerm || this.selectedType !== 'all') {
+        this.applyFilters();
+      }
+      
+      console.log(`Loaded ${this.properties.length} properties`);
     } catch (error) {
       console.error('Error loading properties:', error);
       await this.showToast('Failed to load properties', 'danger');

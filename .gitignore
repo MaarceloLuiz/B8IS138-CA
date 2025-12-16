@@ -72,3 +72,8 @@ Thumbs.db
 # config vars
 .env
 config.sh
+
+# Seed Firebase
+serviceAccountKey.json
+seed-properties.js
+other-properties.js

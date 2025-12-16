@@ -5,6 +5,15 @@
     </ion-buttons>
     <ion-title>Property Details</ion-title>
     <ion-buttons slot="end">
+      <!-- Edit & Delete buttons (only visible to owner) -->
+      <ion-button *ngIf="isOwner" (click)="editProperty()">
+        <ion-icon slot="icon-only" name="create"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="isOwner" color="danger" (click)="deleteProperty()">
+        <ion-icon slot="icon-only" name="trash"></ion-icon>
+      </ion-button>
+      
+      <!-- Share button (visible to everyone) -->
       <ion-button (click)="shareProperty()">
         <ion-icon slot="icon-only" name="share-social"></ion-icon>
       </ion-button>

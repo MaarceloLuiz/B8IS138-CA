@@ -46,4 +46,8 @@ export const routes: Routes = [
     path: 'profile',
     loadComponent: () => import('./features/profile/profile/profile.page').then( m => m.ProfilePage)
   },
+  {
+    path: 'property-create',
+    loadComponent: () => import('./features/properties/property-create/property-create.page').then( m => m.PropertyCreatePage)
+  },
 ];

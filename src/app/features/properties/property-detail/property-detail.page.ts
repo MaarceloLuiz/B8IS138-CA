@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 import {
   IonContent,
   IonHeader,
@@ -18,7 +19,9 @@ import {
   IonChip,
   IonLabel,
   ToastController,
-  ActionSheetController
+  ActionSheetController,
+  AlertController,
+  ViewWillEnter
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -34,9 +37,12 @@ import {
   personCircle,
   call,
   mail,
-  resize
+  resize,
+  trash,
+  create
 } from 'ionicons/icons';
 import { PropertyService } from '../../../core/services/property.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Property } from '../../../core/models';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { GoogleMapsLoaderService } from '../../../core/services/google-maps-loader.service';
@@ -46,7 +52,7 @@ import { GoogleMapsLoaderService } from '../../../core/services/google-maps-load
   templateUrl: './property-detail.page.html',
   styleUrls: ['./property-detail.page.scss'],
   standalone: true,
-  schemas: [CUSTOM_ELEMENTS_SCHEMA], // For Swiper
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     CommonModule,
     FormsModule,
@@ -67,10 +73,11 @@ import { GoogleMapsLoaderService } from '../../../core/services/google-maps-load
     GoogleMapsModule
   ]
 })
-export class PropertyDetailPage implements OnInit {
+export class PropertyDetailPage implements OnInit, ViewWillEnter {
   property: Property | undefined;
   isLoading: boolean = true;
   propertyId: string = '';
+  isOwner: boolean = false;
 
   mapLoaded: boolean = false;
   mapCenter: google.maps.LatLngLiteral = { lat: 53.3498, lng: -6.2603 };
@@ -95,9 +102,11 @@ export class PropertyDetailPage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private propertyService: PropertyService,
+    private authService: AuthService,
     private googleMapsLoader: GoogleMapsLoaderService,
     private toastController: ToastController,
-    private actionSheetController: ActionSheetController
+    private actionSheetController: ActionSheetController,
+    private alertController: AlertController
   ) {
     addIcons({
       location,
@@ -112,34 +121,99 @@ export class PropertyDetailPage implements OnInit {
       personCircle,
       call,
       mail,
-      resize
+      resize,
+      trash,
+      create
     });
   }
 
-  // Get property ID from query params
   async ngOnInit() {
-    this.route.queryParams.subscribe(async params => {
-      this.propertyId = params['id'];
-      if (this.propertyId) {
-        await this.loadProperty();
-        
-        // Load Google Maps if property has coordinates
-        if (this.property?.latitude && this.property?.longitude) {
-          await this.loadMap();
-        }
-      } else {
-        this.isLoading = false;
-      }
-    });
+    const propertyId = this.route.snapshot.queryParamMap.get('id');
+    
+    if (propertyId) {
+      this.propertyId = propertyId;
+      await this.loadPropertyData();
+    }
   }
 
-  async loadProperty(): Promise<void> {
+  /**
+   * Ionic lifecycle hook - reload property when returning to page
+   */
+  async ionViewWillEnter() {
+    console.log('ionViewWillEnter - reloading property details');
+    if (this.propertyId) {
+      await this.loadPropertyData();
+    }
+  }
+
+  /**
+   * Load property and map data
+   */
+  private async loadPropertyData(): Promise<void> {
+    await this.loadProperty(this.propertyId);
+    
+    if (this.property) {
+      if (this.property.latitude && this.property.longitude) {
+        await this.loadMap();
+      } else {
+        await this.geocodeAndLoadMap();
+      }
+    }
+  }
+
+  /**
+   * Geocode the property address and load the map
+   */
+  private async geocodeAndLoadMap(): Promise<void> {
+    if (!this.property) return;
+
+    try {
+      const address = this.property.eircode || this.property.address;
+      
+      if (!address) {
+        console.log('No address or eircode available for geocoding');
+        return;
+      }
+
+      const apiKey = environment.googleMapsApiKey;
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === 'OK' && data.results.length > 0) {
+        const location = data.results[0].geometry.location;
+        
+        this.property.latitude = location.lat;
+        this.property.longitude = location.lng;
+        
+        await this.loadMap();
+        
+        console.log('Map loaded with geocoded coordinates:', location);
+      } else {
+        console.log('Could not geocode address:', data.status);
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+    }
+  }
+
+  /**
+   * Load property details from Firestore
+   */
+  async loadProperty(propertyId: string): Promise<void> {
     try {
       this.isLoading = true;
-      this.property = await this.propertyService.getById(this.propertyId);
+      this.property = await this.propertyService.getById(propertyId);
       
       if (!this.property) {
         await this.showToast('Property not found', 'danger');
+        this.router.navigate(['/tabs/home']);
+      } else {
+        // Check if current user is the owner
+        const currentUser = this.authService.currentUser;
+        this.isOwner = currentUser ? this.property.createdBy === currentUser.uid : false;
+        console.log('Property loaded:', this.property.title);
       }
     } catch (error) {
       console.error('Error loading property:', error);
@@ -149,7 +223,6 @@ export class PropertyDetailPage implements OnInit {
     }
   }
 
-  // Load Google Maps API and center on property location
   private async loadMap(): Promise<void> {
     try {
       await this.googleMapsLoader.loadGoogleMaps();
@@ -167,7 +240,6 @@ export class PropertyDetailPage implements OnInit {
     }
   }
 
-  // Get property marker position for Google Maps
   getPropertyPosition(): google.maps.LatLngLiteral | undefined {
     if (this.property?.latitude && this.property?.longitude) {
       return {
@@ -184,6 +256,47 @@ export class PropertyDetailPage implements OnInit {
         queryParams: { propertyId: this.property.id }
       });
     }
+  }
+
+  /**
+   * Edit the property (navigate to edit form)
+   */
+  editProperty(): void {
+    this.router.navigate(['/property-create'], {
+      queryParams: { id: this.propertyId, mode: 'edit' }
+    });
+  }
+
+  /**
+   * Delete the property with confirmation
+   */
+  async deleteProperty(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Delete Property',
+      message: 'Are you sure you want to delete this property? This action cannot be undone.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await this.propertyService.delete(this.propertyId);
+              await this.showToast('Property deleted successfully', 'success');
+              this.router.navigate(['/tabs/home']);
+            } catch (error) {
+              console.error('Error deleting property:', error);
+              await this.showToast('Failed to delete property', 'danger');
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   async shareProperty(): Promise<void> {

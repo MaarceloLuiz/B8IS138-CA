@@ -1,13 +1,275 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>property-create</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ isEditMode ? 'Edit Property' : 'Create Property Listing' }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">property-create</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <div class="create-container">
+    <form [formGroup]="propertyForm" (ngSubmit)="submitProperty()">
+      
+      <!-- Basic Information -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Basic Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-label position="stacked">Property Title *</ion-label>
+            <ion-input 
+              formControlName="title" 
+              placeholder="e.g., Modern 3-Bed Apartment in City Centre"
+              [class.ion-invalid]="propertyForm.get('title')?.invalid && propertyForm.get('title')?.touched">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="propertyForm.get('title')?.invalid && propertyForm.get('title')?.touched">
+            Title is required (minimum 5 characters)
+          </div>
+
+          <ion-item>
+            <ion-label position="stacked">Property Type *</ion-label>
+            <ion-select formControlName="propertyType" placeholder="Select type">
+              <ion-select-option value="apartment">Apartment</ion-select-option>
+              <ion-select-option value="house">House</ion-select-option>
+              <ion-select-option value="studio">Studio</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Description *</ion-label>
+            <ion-textarea 
+              formControlName="description" 
+              rows="5"
+              placeholder="Describe the property..."
+              [class.ion-invalid]="propertyForm.get('description')?.invalid && propertyForm.get('description')?.touched">
+            </ion-textarea>
+          </ion-item>
+          <div class="error-message" *ngIf="propertyForm.get('description')?.invalid && propertyForm.get('description')?.touched">
+            Description is required (minimum 20 characters)
+          </div>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Pricing & Details -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Pricing & Details</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-label position="stacked">Price (€) *</ion-label>
+            <ion-input 
+              formControlName="price" 
+              type="number" 
+              placeholder="e.g., 350000"
+              [class.ion-invalid]="propertyForm.get('price')?.invalid && propertyForm.get('price')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Bedrooms *</ion-label>
+            <ion-input 
+              formControlName="bedrooms" 
+              type="number" 
+              placeholder="e.g., 3">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Bathrooms *</ion-label>
+            <ion-input 
+              formControlName="bathrooms" 
+              type="number" 
+              placeholder="e.g., 2">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Area (sqm) *</ion-label>
+            <ion-input 
+              formControlName="areaSqm" 
+              type="number" 
+              placeholder="e.g., 120">
+            </ion-input>
+          </ion-item>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Location -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Location</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-label position="stacked">Location *</ion-label>
+            <ion-input 
+              formControlName="location" 
+              placeholder="e.g., Dublin 2"
+              [class.ion-invalid]="propertyForm.get('location')?.invalid && propertyForm.get('location')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Address *</ion-label>
+            <ion-input 
+              formControlName="address" 
+              placeholder="e.g., 15 Grand Canal Square, Dublin 2"
+              [class.ion-invalid]="propertyForm.get('address')?.invalid && propertyForm.get('address')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Eircode</ion-label>
+            <ion-input 
+              formControlName="eircode" 
+              placeholder="e.g., D02 X576">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Latitude (Optional)</ion-label>
+            <ion-input 
+              formControlName="latitude" 
+              type="number" 
+              placeholder="e.g., 53.3419">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Longitude (Optional)</ion-label>
+            <ion-input 
+              formControlName="longitude" 
+              type="number" 
+              placeholder="e.g., -6.2428">
+            </ion-input>
+          </ion-item>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Images -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Images</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-label position="stacked">Image URL 1 *</ion-label>
+            <ion-input 
+              formControlName="image1" 
+              placeholder="https://images.unsplash.com/photo-..."
+              [class.ion-invalid]="propertyForm.get('image1')?.invalid && propertyForm.get('image1')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Image URL 2</ion-label>
+            <ion-input 
+              formControlName="image2" 
+              placeholder="https://images.unsplash.com/photo-...">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Image URL 3</ion-label>
+            <ion-input 
+              formControlName="image3" 
+              placeholder="https://images.unsplash.com/photo-...">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Image URL 4</ion-label>
+            <ion-input 
+              formControlName="image4" 
+              placeholder="https://images.unsplash.com/photo-...">
+            </ion-input>
+          </ion-item>
+
+          <p class="helper-text">
+            <ion-icon name="information-circle"></ion-icon>
+            Tip: Use Unsplash image URLs (e.g., https://images.unsplash.com/photo-...)
+          </p>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Agent Information -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Agent Information</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-label position="stacked">Agent Name *</ion-label>
+            <ion-input 
+              formControlName="agentName" 
+              placeholder="e.g., Sarah Murphy"
+              [class.ion-invalid]="propertyForm.get('agentName')?.invalid && propertyForm.get('agentName')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Agent Phone *</ion-label>
+            <ion-input 
+              formControlName="agentPhone" 
+              placeholder="e.g., +353 1 234 5678"
+              [class.ion-invalid]="propertyForm.get('agentPhone')?.invalid && propertyForm.get('agentPhone')?.touched">
+            </ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="stacked">Agent Email *</ion-label>
+            <ion-input 
+              formControlName="agentEmail" 
+              type="email"
+              placeholder="e.g., agent@realestate.ie"
+              [class.ion-invalid]="propertyForm.get('agentEmail')?.invalid && propertyForm.get('agentEmail')?.touched">
+            </ion-input>
+          </ion-item>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Featured -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Additional Options</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          
+          <ion-item>
+            <ion-label>Mark as Featured</ion-label>
+            <ion-checkbox formControlName="isFeatured" slot="start"></ion-checkbox>
+          </ion-item>
+
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Submit Button -->
+      <div class="submit-section">
+        <ion-button 
+          expand="block" 
+          type="submit" 
+          [disabled]="!propertyForm.valid || isSubmitting">
+          <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+          {{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Property' : 'Create Property') }}
+        </ion-button>
+      </div>
+
+    </form>
+  </div>
 </ion-content>

@@ -1,80 +1,82 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc, query, where, orderBy } from '@angular/fire/firestore';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Booking } from '../models';
-import { BookingRepository } from '../repositories/booking.repository';
-import { InMemoryBookingRepository } from '../repositories/inmemory/inmemory-booking.repository';
 
 /**
- * booking service - business logic
-*/
+ * Booking service - Direct Firestore implementation
+ */
 @Injectable({
   providedIn: 'root'
 })
-
 export class BookingService {
-    private bookingsSubject = new BehaviorSubject<Booking[]>([]);
-    public bookings$ = this.bookingsSubject.asObservable();
+  private collectionName = 'bookings';
 
-    constructor(private repository: InMemoryBookingRepository) {}
+  constructor(private firestore: Firestore) {}
 
-    // CRUD
-    async getAll(): Promise<Booking[]> {
-        return this.repository.list();
+  async getAll(): Promise<Booking[]> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+    const q = query(collectionRef, orderBy('createdAt', 'desc'));
+    const bookings$ = collectionData(q, { idField: 'id' }) as Observable<Booking[]>;
+    return firstValueFrom(bookings$);
+  }
+
+  async getById(id: string): Promise<Booking | undefined> {
+    const docRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    const booking$ = docData(docRef, { idField: 'id' }) as Observable<Booking>;
+    try {
+      return await firstValueFrom(booking$);
+    } catch {
+      return undefined;
     }
+  }
 
-    async getById(id: string): Promise<Booking | undefined> {
-        return this.repository.getById(id);
-    }
+  async getByUser(userId: string): Promise<Booking[]> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+    const q = query(collectionRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+    const bookings$ = collectionData(q, { idField: 'id' }) as Observable<Booking[]>;
+    return firstValueFrom(bookings$);
+  }
 
-    async getByUser(userId: string): Promise<Booking[]> {
-        const bookings = await this.repository.listByUser(userId);
-        this.bookingsSubject.next(bookings);
-        return bookings;
-    }
+  async getByPropertyId(propertyId: string): Promise<Booking[]> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+    const q = query(collectionRef, where('propertyId', '==', propertyId), orderBy('createdAt', 'desc'));
+    const bookings$ = collectionData(q, { idField: 'id' }) as Observable<Booking[]>;
+    return firstValueFrom(bookings$);
+  }
 
-    async getByProperty(propertyId: string): Promise<Booking[]> {
-        return this.repository.listByProperty(propertyId);
-    }
+  async create(booking: Omit<Booking, 'id'>): Promise<string> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+    const docRef = await addDoc(collectionRef, {
+      ...booking,
+      createdAt: booking.createdAt || new Date().toISOString()
+    });
+    return docRef.id;
+  }
 
-    async create(booking: Omit<Booking, 'id'>): Promise<string> {
-        const viewingDateTime = new Date(`${booking.viewingDate}T${booking.viewingTime}`); // checking if the date is in the future
-        if (viewingDateTime < new Date()) {
-            throw new Error('Viewing date and time must be in the future');
-        }
+  async update(id: string, booking: Partial<Booking>): Promise<void> {
+    const docRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    await updateDoc(docRef, {
+      ...booking,
+      updatedAt: new Date().toISOString()
+    } as any);
+  }
 
-        const newBooking: Booking = { 
-            ...booking,
-            id: `booking-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        };
+  async delete(id: string): Promise<void> {
+    const docRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    await deleteDoc(docRef);
+  }
 
-        const id = await this.repository.create(newBooking);
+  async getByStatus(status: 'pending' | 'confirmed' | 'cancelled'): Promise<Booking[]> {
+    const allBookings = await this.getAll();
+    return allBookings.filter(b => b.status === status);
+  }
 
-        if (booking.userId) {
-            await this.getByUser(booking.userId); // refresh user bookings if id is available
-        }
+  async cancel(id: string): Promise<void> {
+    return this.update(id, { status: 'cancelled' });
+  }
 
-        return id;
-    }
-
-    async updateStatus(id: string, status: 'pending' | 'confirmed' | 'cancelled'): Promise<void> {
-        await this.repository.update(id, { status });
-    }
-
-    async update(id: string, updates: Partial<Booking>): Promise<void> {
-        await this.repository.update(id, updates);
-    }
-     
-    async cancel(id: string): Promise<void> {
-        await this.updateStatus(id, 'cancelled');
-    }
-
-    async delete(id: string): Promise<void> {
-        await this.repository.delete(id);
-    }
-
-    // check if the slot is available for visiting
-    async isTimeSlotAvailable(propertyId: string, date: string, time: string): Promise<boolean> {
-        const bookings = await this.repository.listByProperty(propertyId);
-        return !bookings.some(booking => booking.viewingDate === date && booking.viewingTime === time && booking.status !== 'cancelled');
-    }
+  async confirm(id: string): Promise<void> {
+    return this.update(id, { status: 'confirmed' });
+  }
 }

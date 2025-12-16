@@ -9,6 +9,19 @@
     </ion-buttons>
   </ion-toolbar>
 
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Properties</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [routerLink]="['/property-create']">
+        <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  
+  <!-- Rest of your existing header code -->
+</ion-header>
+
   <!-- Search/Filter Bar (collapsible) -->
   <ion-toolbar *ngIf="showSearch">
     <ion-searchbar

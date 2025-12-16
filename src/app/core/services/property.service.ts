@@ -1,96 +1,75 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, BehaviorSubject } from 'rxjs';
+import { Firestore, collection, collectionData, doc, docData, addDoc, updateDoc, deleteDoc, query, orderBy } from '@angular/fire/firestore';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Property } from '../models';
-import { PropertyRepository } from '../repositories/property.repository';
-import { InMemoryPropertyRepository } from '../repositories/inmemory/inmemory-property.repository';
 
 /**
- * property service - business logic
- * user repository pattern for data access
-*/
+ * Property service - Direct Firestore implementation
+ */
 @Injectable({
   providedIn: 'root'
-})  
-
+})
 export class PropertyService {
-    private propertiesSubject = new BehaviorSubject<Property[]>([]);
-    public properties$ = this.propertiesSubject.asObservable();
+  private collectionName = 'properties';
 
-    constructor(private repository: InMemoryPropertyRepository) {
-        this.loadProperties();
+  constructor(private firestore: Firestore) {}
+
+  async getAll(): Promise<Property[]> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+    const q = query(collectionRef, orderBy('createdAt', 'desc'));
+    const properties$ = collectionData(q, { idField: 'id' }) as Observable<Property[]>;
+    return firstValueFrom(properties$);
+  }
+
+  async getById(id: string): Promise<Property | undefined> {
+    const docRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    const property$ = docData(docRef, { idField: 'id' }) as Observable<Property>;
+    try {
+      return await firstValueFrom(property$);
+    } catch {
+      return undefined;
     }
+  }
 
-    private async loadProperties(): Promise<void> {
-        try {
-            const properties = await this.repository.list();
-            this.propertiesSubject.next(properties);
-        } catch (error) {
-            console.error('Failed to load properties', error);
-            this.propertiesSubject.next([]);
-        }
-    }
+  async create(property: Omit<Property, 'id'>): Promise<string> {
+    const collectionRef = collection(this.firestore, this.collectionName);
+    const docRef = await addDoc(collectionRef, {
+      ...property,
+      createdAt: property.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    return docRef.id;
+  }
 
-    // CRUD and filters
-    async getAll(): Promise<Property[]> {
-        return this.repository.list();
-    }
+  async update(id: string, property: Partial<Property>): Promise<void> {
+    const docRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    await updateDoc(docRef, {
+      ...property,
+      updatedAt: new Date().toISOString()
+    } as any);
+  }
 
-    async getById(id: string): Promise<Property | undefined> {
-        return this.repository.getById(id);
-    }
+  async delete(id: string): Promise<void> {
+    const docRef = doc(this.firestore, `${this.collectionName}/${id}`);
+    await deleteDoc(docRef);
+  }
 
-    async getFeatured(): Promise<Property[]> {
-        const properties = await this.repository.list();
-        return properties.filter(p => p.isFeatured);
-    }
+  async getByType(type: 'house' | 'apartment' | 'studio'): Promise<Property[]> {
+    const allProperties = await this.getAll();
+    return allProperties.filter(p => p.propertyType === type);
+  }
 
-    async search(criteria: {
-        minPrice?: number;
-        maxPrice?: number;
-        bedrooms?: number;
-        propertyType?: string;
-        location?: string;
-    }): Promise<Property[]> {
-        let properties = await this.repository.list();
+  async getFeatured(): Promise<Property[]> {
+    const allProperties = await this.getAll();
+    return allProperties.filter(p => p.isFeatured === true);
+  }
 
-        if (criteria.minPrice) {
-            properties = properties.filter(p => p.price >= criteria.minPrice!);
-        }
-        if (criteria.maxPrice) {
-            properties = properties.filter(p => p.price <= criteria.maxPrice!);
-        }
-        if (criteria.bedrooms) {
-            properties = properties.filter(p => p.bedrooms === criteria.bedrooms!);
-        }
-        if (criteria.propertyType) {
-            properties = properties.filter(p => p.propertyType === criteria.propertyType);
-        }
-        if (criteria.location) {
-            const searchTerm = criteria.location.toLowerCase();
-            properties = properties.filter(p => p.location.toLowerCase().includes(searchTerm) || p.address.toLowerCase().includes(searchTerm));
-        }
-
-        return properties;
-    }
-
-    // CA2 - admins can create new property
-    async create(property: Property): Promise<string> {
-        const id = await this.repository.create(property);
-        await this.loadProperties(); // refresh list after its done
-        return id;
-    }
-
-    async update(id: string, updates: Partial<Property>): Promise<void> {
-        await this.repository.update(id, updates);
-        await this.loadProperties();
-    }
-
-    async delete(id: string): Promise<void> {
-        await this.repository.delete(id);
-        await this.loadProperties();
-    }
-
-    async refresh(): Promise<void> {
-        await this.loadProperties();
-    }
+  async searchByLocation(location: string): Promise<Property[]> {
+    const allProperties = await this.getAll();
+    const searchTerm = location.toLowerCase();
+    return allProperties.filter(p => 
+      p.location.toLowerCase().includes(searchTerm) ||
+      p.address.toLowerCase().includes(searchTerm)
+    );
+  }
 }
